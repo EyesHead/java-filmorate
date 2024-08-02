@@ -1,21 +1,23 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.*;
 import lombok.*;
-
-import java.time.Duration;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Optional;
 
 /**
  * Film implementation with {@code id}, {@code name},
  * {@code description}, {@code releaseDate} and {@code duration} fields
  * @author Daniil Kuksar
  */
-@Value
+@Data
 @Builder(toBuilder = true)
 public class Film {
-    Integer id;
-    String name;
-    String description;
-    Instant releaseDate;
-    Duration duration;
+    Long id;
+    @NotBlank String name;
+    @Size(max = 200) String description;
+    LocalDate releaseDate;
+    @Positive int duration;
+
 }
