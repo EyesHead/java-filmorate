@@ -10,11 +10,6 @@ public class ReleaseDateValidator implements ConstraintValidator<ValidReleaseDat
     private static final LocalDate MIN_DATE = LocalDate.of(1895, 12, 28);
 
     @Override
-    public void initialize(ValidReleaseDate constraintAnnotation) {
-        // Initialization code if needed
-    }
-
-    @Override
     public boolean isValid(LocalDate date, ConstraintValidatorContext context) {
         if (date == null) {
             return true; // Handle null values separately if needed

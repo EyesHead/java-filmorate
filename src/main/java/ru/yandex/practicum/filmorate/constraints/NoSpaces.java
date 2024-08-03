@@ -1,8 +1,7 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.constraints;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-import ru.yandex.practicum.filmorate.constraints.NoSpacesValidator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
