@@ -7,7 +7,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
@@ -48,6 +47,7 @@ public class FilmController {
 
     }
     private void validateOnUpdate(Film film) {
+
         if (film.getId() == null) {
             log.debug("ID from request is null");
             throw new ValidationException("ID cannot be null for update");
