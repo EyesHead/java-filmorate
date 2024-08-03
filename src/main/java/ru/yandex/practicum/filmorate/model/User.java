@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.constraints.NoSpaces;
 
 import java.time.LocalDate;
 
@@ -20,7 +21,7 @@ public class User {
     Long id;
     @NotBlank @Email
     String email;
-    @NotBlank @ru.yandex.practicum.filmorate.model.NoSpaces
+    @NotBlank @NoSpaces
     String login;
     String name;
     @Past

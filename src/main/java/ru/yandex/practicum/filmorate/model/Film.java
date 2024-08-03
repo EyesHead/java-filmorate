@@ -9,6 +9,7 @@ import java.time.LocalDate;
 /**
  * Film implementation with {@code id}, {@code name},
  * {@code description}, {@code releaseDate} and {@code duration} fields
+ *
  * @author Daniil Kuksar
  */
 @Data
