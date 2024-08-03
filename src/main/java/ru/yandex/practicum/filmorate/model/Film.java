@@ -15,9 +15,11 @@ import java.util.Optional;
 @Builder(toBuilder = true)
 public class Film {
     Long id;
-    @NotBlank String name;
-    @Size(max = 200) String description;
+    @NotBlank(message = "Name is mandatory")
+    String name;
+    @Size(max = 200, message = "The character limit does not exceed 200")
+    String description;
     LocalDate releaseDate;
-    @Positive int duration;
-
+    @Positive(message = "Duration cant be negative number")
+    int duration;
 }
