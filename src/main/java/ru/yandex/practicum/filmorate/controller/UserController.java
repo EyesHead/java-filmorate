@@ -30,7 +30,6 @@ public class UserController {
         log.info("POST request by client received");
         var newUser = user.toBuilder()
                 .id(generateUniqueId())
-                .name(getUserName(user))
                 .build();
         log.trace("PUT Generated user for create: {}", user);
         usersRepo.put(newUser.getId(), newUser);
@@ -43,7 +42,6 @@ public class UserController {
         log.info("PUT request by client received");
         validateOnUpdate(user);
         var updatedUser = user.toBuilder()
-                .name(getUserName(user))
                 .build();
         usersRepo.put(updatedUser.getId(), updatedUser);
         log.debug("(PUT) user was found in memory and updated: {}", updatedUser);
@@ -64,14 +62,6 @@ public class UserController {
                     log.debug("PUT: User not found in memory: ID={}", user.getId());
                     return new ValidationException("User was not found in memory");
                 });
-    }
-
-    private String getUserName(User user) {
-        if (user.getName() == null) {
-            log.debug("USER_DATA: user name in request is null, will be used {} as name", user.getLogin());
-            return user.getLogin();
-        }
-        return user.getName();
     }
 
     private long generateUniqueId() {

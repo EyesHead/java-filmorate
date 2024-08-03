@@ -22,7 +22,7 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> getAllFilms() {
-        log.info("(GET) request by client received");
+        log.info("GET request by client received");
         log.trace("User requested movies: {}", films.values());
         return films.values();
     }
@@ -30,7 +30,6 @@ public class FilmController {
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         log.info("POST request by client received");
-        validateOnCreate(film);
         Film newFilm = getNewFilmByData(film);
         films.put(newFilm.getId(), newFilm);
         log.trace("POST new film: {}", newFilm);
@@ -40,7 +39,7 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        log.info("(PUT) request by client received");
+        log.info("PUT request by client received");
         validateOnUpdate(film);
         films.put(film.getId(), film);
         log.debug("PUT film was found in memory and updated: {}", film);
@@ -54,8 +53,6 @@ public class FilmController {
             throw new ValidationException("ID cannot be null for update");
         }
 
-        validateOnReleaseDate(film);
-
         films.keySet().stream()
                 .filter(Objects::nonNull)
                 .filter(oldFilmId -> film.getId().equals(oldFilmId))
@@ -65,20 +62,6 @@ public class FilmController {
                     return new ValidationException("Film was not found in memory");
                 });
     }
-
-    private void validateOnCreate(Film film) {
-        validateOnReleaseDate(film);
-        log.info("POST user was successfully validated on create");
-    }
-
-    private static void validateOnReleaseDate(Film film) {
-        if (film.getReleaseDate().isBefore(
-                LocalDate.of(1895, 12, 28))) {
-            log.info("incorrect release date for film");
-            throw new ValidationException("Date of film release before 28.12.1895");
-        }
-    }
-
 
     private Film getNewFilmByData(Film filmData) {
         Film newFilm = filmData.toBuilder()
