@@ -51,7 +51,7 @@ public class FilmValidationTest {
         Set<ConstraintViolation<Film>> violations = validator.validate(film);
         assertFalse(violations.isEmpty(), "Expected constraint violations, but got none.");
         assertEquals(1, violations.size(), "Expected 1 constraint violation.");
-        assertEquals("не должно быть пустым", violations.iterator().next().getMessage());
+        assertEquals("must not be blank", violations.iterator().next().getMessage());
     }
 
     @Test

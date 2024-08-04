@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class Film {
     Long id;
-    @NotBlank
+    @NotBlank(message = "must not be blank")
     String name;
     @Size(max = 200, message = "The character limit does not exceed 200")
     String description;
