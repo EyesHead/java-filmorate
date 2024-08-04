@@ -27,11 +27,4 @@ public class User {
     String name;
     @Past(message = "must contain a past date")
     LocalDate birthday;
-
-    @PostConstruct
-    public void onInitialize() {
-        if (name == null || name.isBlank()) {
-            name = login;
-        }
-    }
 }

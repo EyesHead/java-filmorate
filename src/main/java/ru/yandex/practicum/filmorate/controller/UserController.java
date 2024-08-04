@@ -29,6 +29,7 @@ public class UserController {
     public User createNewUser(@Valid @RequestBody User user) {
         log.info("POST request by client received");
         var newUser = user.toBuilder()
+                .name(getActualName(user))
                 .id(generateUniqueId())
                 .build();
         log.trace("PUT Generated user for create: {}", user);
@@ -42,11 +43,19 @@ public class UserController {
         log.info("PUT request by client received");
         validateOnUpdate(user);
         var updatedUser = user.toBuilder()
+                .name(getActualName(user))
                 .build();
         usersRepo.put(updatedUser.getId(), updatedUser);
         log.debug("(PUT) user was found in memory and updated: {}", updatedUser);
         log.info("(PUT) user was successfully updated");
         return updatedUser;
+    }
+
+    private String getActualName(User user) {
+        if (user.getName() == null) {
+            return user.getLogin();
+        }
+        return user.getName();
     }
 
     private void validateOnUpdate(User user) throws ValidationException {
