@@ -52,7 +52,7 @@ public class UserValidationTest {
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Expected constraint violations, but got none.");
         assertEquals(1, violations.size(), "Expected 1 constraint violation.");
-        assertEquals("не должно быть пустым", violations.iterator().next().getMessage());
+        assertEquals("must not be blank", violations.iterator().next().getMessage());
     }
 
     @Test
@@ -67,7 +67,7 @@ public class UserValidationTest {
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Expected constraint violations, but got none.");
         assertEquals(1, violations.size(), "Expected 1 constraint violation.");
-        assertEquals("должно иметь формат адреса электронной почты", violations.iterator().next().getMessage());
+        assertEquals("must be in email address format", violations.iterator().next().getMessage());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class UserValidationTest {
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Expected constraint violations, but got none.");
         assertEquals(1, violations.size(), "Expected 1 constraint violation.");
-        assertEquals("не должно быть пустым", violations.iterator().next().getMessage());
+        assertEquals("must not be blank", violations.iterator().next().getMessage());
     }
 
     @Test
@@ -112,6 +112,6 @@ public class UserValidationTest {
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Expected constraint violations, but got none.");
         assertEquals(1, violations.size(), "Expected 1 constraint violation.");
-        assertEquals("должно содержать прошедшую дату", violations.iterator().next().getMessage());
+        assertEquals("must contain a past date", violations.iterator().next().getMessage());
     }
 }

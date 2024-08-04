@@ -19,12 +19,13 @@ import java.time.LocalDate;
 @Builder(toBuilder = true, builderClassName = "UserBuilder")
 public class User {
     Long id;
-    @NotBlank @Email
+    @Email(message = "must be in email address format")
+    @NotBlank(message = "must not be blank")
     String email;
-    @NotBlank @NoSpaces
+    @NoSpaces @NotBlank(message = "must not be blank")
     String login;
     String name;
-    @Past
+    @Past(message = "must contain a past date")
     LocalDate birthday;
 
     @PostConstruct
