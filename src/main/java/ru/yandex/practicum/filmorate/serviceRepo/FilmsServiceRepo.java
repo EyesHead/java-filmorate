@@ -12,7 +12,7 @@ import java.util.Objects;
 
 @Component
 @Slf4j
-public class FilmsServiceRepo implements FilmorateRepository<Film>{
+public class FilmsServiceRepo implements FilmorateRepository<Film> {
     Map<Long, Film> films = new HashMap<>();
 
     public Collection<Film> getAll() {

@@ -6,7 +6,6 @@ import java.util.Collection;
 
 @Component
 public interface FilmorateRepository<T> {
-
     Collection<T> getAll();
 
     T create(T entity);
