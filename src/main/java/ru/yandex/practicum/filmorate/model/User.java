@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.filmorate.constraints.NoSpaces;
-
 import java.time.LocalDate;
 
 /**
@@ -16,6 +16,7 @@ import java.time.LocalDate;
  */
 @Data
 @Builder(toBuilder = true, builderClassName = "UserBuilder")
+@FieldDefaults(makeFinal = true)
 public class User {
     Long id;
     @Email(message = "must be in email address format")

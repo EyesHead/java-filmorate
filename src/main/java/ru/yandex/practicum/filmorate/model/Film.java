@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.filmorate.constraints.ValidReleaseDate;
-
 import java.time.LocalDate;
 
 /**
@@ -14,6 +14,7 @@ import java.time.LocalDate;
  */
 @Data
 @Builder(toBuilder = true)
+@FieldDefaults(makeFinal = true)
 public class Film {
     Long id;
     @NotBlank(message = "must not be blank")
