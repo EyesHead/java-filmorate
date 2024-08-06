@@ -5,38 +5,38 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.serviceRepo.FilmorateRepository;
-import ru.yandex.practicum.filmorate.serviceRepo.FilmsServiceRepo;
+
 import java.util.Collection;
 
-@Slf4j(topic = "Films controller log")
 @RestController
-@RequestMapping("/films")
+@RequestMapping("/users")
+@Slf4j(topic = "Users controller log")
 @Validated
-public class FilmController {
-    FilmorateRepository<Film> filmService;
+public class UserController {
+    FilmorateRepository<User> userService;
 
     @Autowired
-    FilmController(FilmsServiceRepo filmService) {
-        this.filmService = filmService;
+    public UserController(FilmorateRepository<User> userService) {
+        this.userService = userService;
     }
 
     @GetMapping
-    public Collection<Film> getAllFilms() {
+    public Collection<User> getAllUsers() {
         log.info("GET request by client received");
-        return filmService.getAll();
+        return userService.getAll();
     }
 
     @PostMapping
-    public Film createFilm(@Valid @RequestBody Film film) {
+    public User createNewUser(@Valid @RequestBody User user) {
         log.info("POST request by client received");
-        return filmService.create(film);
+        return userService.create(user);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public User updateUser(@Valid @RequestBody User user) {
         log.info("PUT request by client received");
-        return filmService.update(film);
+        return userService.update(user);
     }
 }
