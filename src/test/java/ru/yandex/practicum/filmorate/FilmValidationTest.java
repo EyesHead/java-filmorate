@@ -6,7 +6,7 @@ import jakarta.validation.ValidatorFactory;
 import jakarta.validation.ConstraintViolation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.dto.Film;
 
 import java.time.LocalDate;
 import java.util.Set;
