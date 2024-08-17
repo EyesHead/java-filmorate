@@ -91,9 +91,9 @@ public class InMemoryUserStorage implements UserStorage {
 
         log.info("Пользователь {} с id = {} удалил друга {} с id = {}",
                 foundUser.getName(), userId, foundFriend.getName(), friendId);
-        return new ResponseMessage(String.format
-                ("Пользователь '%s' с id = '%d' удалил из списка друзей пользователя '%s' с id = '%d'",
-                        foundUser.getName(), userId, foundFriend.getName(), friendId));
+        return new ResponseMessage(String.format(
+                "Пользователь '%s' с id = '%d' удалил из списка друзей пользователя '%s' с id = '%d'",
+                foundUser.getName(), userId, foundFriend.getName(), friendId));
     }
 
     @Override
