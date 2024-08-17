@@ -22,12 +22,12 @@ public class CrudUserService {
         return userStorage.getAll();
     }
 
-    public User create(@Validated(Marker.OnCreate.class) User user) {
+    public User createUser(@Validated(Marker.OnCreate.class) User user) {
         log.info("Получен запрос на создание от пользователя с логином = '{}'", user.getLogin());
-        return userStorage.addUser(user);
+        return userStorage.createUser(user);
     }
 
-    public User update(@Validated(Marker.OnUpdate.class) User user) {
+    public User updateUser(@Validated(Marker.OnUpdate.class) User user) {
         log.info("Получен запрос на обновления данных о пользователе");
         return userStorage.updateUser(user);
     }

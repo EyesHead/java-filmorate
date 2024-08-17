@@ -12,7 +12,7 @@ import java.util.Set;
 public interface UserStorage {
     Collection<User> getAll();
 
-    User addUser(User user);
+    User createUser(User user);
 
     User updateUser(User user) throws NotFoundException;
 
@@ -20,7 +20,7 @@ public interface UserStorage {
 
     ResponseMessage addFriendToUser(long userId, long friendId) throws NotFoundException;
 
-    ResponseMessage removeFriend(Long userId, Long friendId) throws NotFoundException;
+    ResponseMessage removeFriend(Long userId, Long friendId);
 
     List<User> getAllFriendsFromUser(Long userId) throws NotFoundException;
 

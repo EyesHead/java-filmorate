@@ -16,14 +16,14 @@ public class FilmLikeController {
     private final FilmLikeService filmLikesService;
 
     @PutMapping("/{id}/like/{userId}")
-    public ResponseMessage addLikeToFilm(@PathVariable(name = "id") long filmId,
-                                         @PathVariable(name = "userId") long userId) {
+    public ResponseMessage addLikeToFilm(@PathVariable(name = "id") Long filmId,
+                                         @PathVariable(name = "userId") Long userId) {
         return filmLikesService.addLikeToFilmByUser(filmId, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public ResponseMessage removeLikeFromFilm(@PathVariable(name = "id") long filmId,
-                                              @PathVariable(name = "userId") long userId) {
+    public ResponseMessage removeLikeFromFilm(@PathVariable(name = "id") Long filmId,
+                                              @PathVariable(name = "userId") Long userId) {
         return filmLikesService.removeLikeFromFilm(filmId, userId);
     }
 

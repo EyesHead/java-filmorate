@@ -11,11 +11,11 @@ import java.lang.annotation.Target;
 /**
  * Custom annotation to validate that a string does not contain spaces.
  */
-@Constraint(validatedBy = NoSpacesValidator.class)
+@Constraint(validatedBy = LoginFormValidator.class)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface NoSpaces {
-    String message() default "must not contain spaces";
+public @interface LoginForm {
+    String message() default "must be a well-formed login";
 
     Class<?>[] groups() default {};
 

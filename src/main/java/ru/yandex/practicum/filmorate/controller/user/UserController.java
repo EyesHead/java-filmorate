@@ -28,7 +28,7 @@ public class UserController {
     public User createNewUser(@RequestBody
                               @Validated(Marker.OnCreate.class)
                               User user) {
-        return userService.create(user);
+        return userService.createUser(user);
     }
 
     @ResponseStatus(HttpStatus.OK)
@@ -36,6 +36,6 @@ public class UserController {
     public User updateUser(@RequestBody
                            @Validated(Marker.OnUpdate.class)
                            User user) {
-        return userService.update(user);
+        return userService.updateUser(user);
     }
 }

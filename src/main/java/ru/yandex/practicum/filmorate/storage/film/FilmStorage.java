@@ -15,7 +15,7 @@ public interface FilmStorage {
 
     Collection<Film> getMostLikedFilms(int limit);
 
-    ResponseMessage removeLikeFromFilm(long filmId, long userId);
+    ResponseMessage removeLikeFromFilm(Long filmId, Long userId);
 
-    ResponseMessage addLikeToFilm(long filmId, long userId);
+    ResponseMessage addLikeToFilm(Long filmId, Long userId);
 }

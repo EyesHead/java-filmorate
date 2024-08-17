@@ -56,14 +56,20 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("Пока что в сервис не было добавлено ни одного фильма");
         }
 
-        return films.values().stream()
+        Collection<Film> foundFilms = films.values().stream()
                 .filter(film -> film.getUsersLikes() != null && !film.getUsersLikes().isEmpty())
                 .sorted(Comparator.comparingInt(film -> ((Film) film).getUsersLikes().size()).reversed())
                 .limit(limit).toList();
+
+        if (foundFilms.isEmpty()) {
+            throw new NotFoundException("В сервисе не было найдено ни одного фильма с оценками от пользователей");
+        }
+
+        return foundFilms;
     }
 
     @Override
-    public ResponseMessage removeLikeFromFilm(long filmId, long userId) {
+    public ResponseMessage removeLikeFromFilm(Long filmId, Long userId) {
         validateFilmExists(filmId);
         validateUserExists(userId);
 
@@ -75,7 +81,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public ResponseMessage addLikeToFilm(long filmId, long userId) {
+    public ResponseMessage addLikeToFilm(Long filmId, Long userId) {
         validateFilmExists(filmId);
         validateUserExists(userId);
 

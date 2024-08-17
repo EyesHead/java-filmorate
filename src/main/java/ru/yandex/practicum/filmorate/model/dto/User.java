@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.validation.constraints.NoSpaces;
+import ru.yandex.practicum.filmorate.validation.constraints.LoginForm;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -25,7 +25,7 @@ public class User {
     private final String email;
 
     @NotBlank(groups = Marker.OnCreate.class)
-    @NoSpaces(message = "Логин не должен содержать пробельных символов",
+    @LoginForm(message = "Логин не должен содержать пробельных символов",
             groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private final String login;
 
@@ -35,6 +35,13 @@ public class User {
             groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private final LocalDate birthday;
 
-    @Builder.Default
-    private final Set<Long> friendsIds = new HashSet<>();
+    private final Set<Long> friendsIds;
+
+    //Исключаем null pointer exception при обращении к геттеру
+    public Set<Long> getFriendsIds() {
+        if (this.friendsIds == null) {
+            return new HashSet<>();
+        }
+        return friendsIds;
+    }
 }

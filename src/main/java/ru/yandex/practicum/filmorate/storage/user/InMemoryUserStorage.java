@@ -22,7 +22,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User addUser(User user) {
+    public User createUser(User user) {
         var newUser = user.toBuilder()
                 .name(getActualName(user))
                 .id(generateUniqueId())
@@ -69,16 +69,14 @@ public class InMemoryUserStorage implements UserStorage {
 
         foundUser.getFriendsIds().add(friendId);
         foundFriend.getFriendsIds().add(userId);
-        log.info("Пользователь с id = {} и пользователь с id = {} теперь друг у друга в списке друзей",
-                userId, friendId);
-
-        return new ResponseMessage(String.format(
-                "Пользователь %s c id = %d добавил в друзья пользователя %s c id = %d",
+        log.info("Пользователь {} с id = {} и пользователь {} с id = {} теперь друг у друга в списке друзей",
+                foundUser.getName(), userId, foundFriend.getName(), friendId);
+        return new ResponseMessage(String.format("Пользователь %s с id = %d и пользователь %s с id = %d теперь друзья",
                 foundUser.getName(), userId, foundFriend.getName(), friendId));
     }
 
     @Override
-    public ResponseMessage removeFriend(Long userId, Long friendId) throws NotFoundException {
+    public ResponseMessage removeFriend(Long userId, Long friendId) {
         // Проверяем, существуют ли оба пользователя
         checkUserOnExist(userId);
         checkUserOnExist(friendId);
@@ -88,29 +86,23 @@ public class InMemoryUserStorage implements UserStorage {
         User foundFriend = users.get(friendId);
 
         // Проверяем, являются ли два пользователя друзьями и удаляем, если являются
-        if (!foundUser.getFriendsIds().remove(friendId) || !foundFriend.getFriendsIds().remove(userId)) {
-            throw new NotFoundException(String.format(
-                    "Пользователь %d не является другом для пользователя %d", friendId, userId));
-        }
+        foundUser.getFriendsIds().remove(friendId);
+        foundFriend.getFriendsIds().remove(userId);
 
-        log.info("Пользователь с id = {} удалил друга с id = {}", userId, friendId);
-
-        return new ResponseMessage(String.format(
-                "Пользователь %s c id = %d удалил из друзей пользователя %s c id = %d",
-                foundUser.getName(), userId, foundFriend.getName(), friendId));
+        log.info("Пользователь {} с id = {} удалил друга {} с id = {}",
+                foundUser.getName(), userId, foundFriend.getName(), friendId);
+        return new ResponseMessage(String.format
+                ("Пользователь '%s' с id = '%d' удалил из списка друзей пользователя '%s' с id = '%d'",
+                        foundUser.getName(), userId, foundFriend.getName(), friendId));
     }
 
     @Override
     public List<User> getAllFriendsFromUser(Long userId) {
         checkUserOnExist(userId);
-        List<User> foundUserFriends = users.values()
+        return users.values()
                 .stream()
                 .filter(user -> user.getFriendsIds().contains(userId))
                 .toList();
-        if (foundUserFriends.isEmpty()) {
-            throw new NotFoundException(String.format("У пользователя с id = %d нет друзей", userId));
-        }
-        return foundUserFriends;
     }
 
     @Override

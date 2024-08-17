@@ -3,10 +3,10 @@ package ru.yandex.practicum.filmorate.validation.constraints;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class NoSpacesValidator implements ConstraintValidator<NoSpaces, String> {
+public class LoginFormValidator implements ConstraintValidator<LoginForm, String> {
 
     @Override
-    public void initialize(NoSpaces constraintAnnotation) {
+    public void initialize(LoginForm constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
