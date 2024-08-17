@@ -16,7 +16,7 @@ public interface UserStorage {
 
     User updateUser(User user) throws NotFoundException;
 
-    Optional<User> getUserById(long userId) throws NotFoundException;
+    Optional<User> getUserById(long userId);
 
     ResponseMessage addFriendToUser(long userId, long friendId) throws NotFoundException;
 
