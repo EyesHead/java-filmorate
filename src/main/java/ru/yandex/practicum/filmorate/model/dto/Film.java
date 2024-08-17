@@ -35,6 +35,12 @@ public class Film {
             groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private final Integer duration;
 
-    @Builder.Default
-    private final Set<Long> usersLikes = new HashSet<>();
+    private final Set<Long> usersLikes;
+
+    public Set<Long> getUsersLikes() {
+        if (usersLikes == null) {
+            return new HashSet<>();
+        }
+        return usersLikes;
+    }
 }

@@ -27,7 +27,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film addFilm(Film film) {
         Film newFilm = film.toBuilder()
                 .id(generateUniqueId())
-                .usersLikes(new HashSet<>())
                 .build();
 
         films.put(newFilm.getId(), newFilm);
@@ -57,7 +56,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
 
         Collection<Film> foundFilms = films.values().stream()
-                .filter(film -> film.getUsersLikes() != null && !film.getUsersLikes().isEmpty())
+                .filter(film -> !film.getUsersLikes().isEmpty())
                 .sorted(Comparator.comparingInt(film -> ((Film) film).getUsersLikes().size()).reversed())
                 .limit(limit).toList();
 
