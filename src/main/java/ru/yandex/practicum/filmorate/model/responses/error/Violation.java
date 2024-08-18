@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 public class Violation {
-    private final String fieldName;
-    private final String message;
+    private final String failedFieldName;
+    private final String errorMessage;
 }

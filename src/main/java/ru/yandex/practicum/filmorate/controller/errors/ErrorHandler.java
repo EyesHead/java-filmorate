@@ -17,22 +17,24 @@ import java.util.List;
 public class ErrorHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-     public FailedConstraintsResponse handleFieldOfMethodArgumentConstraints(MethodArgumentNotValidException e) {
-        final List<Violation> violations = e.getBindingResult().getFieldErrors().stream()
+     public FailedConstraintsResponse handleAnnotationConstraints(MethodArgumentNotValidException e) {
+        final List<Violation> violations = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
                 .map(violation -> {
-                    log.error("Пользователь неверно указал значение для поля {}. {}",
-                            violation.getField(), violation.getDefaultMessage());
-                    return new Violation(
-                            violation.getField(), // имя поля, где произошла ошибка
-                            violation.getDefaultMessage());
-                }) // сообщение об ошибке
+                    String failedFieldName = violation.getField();
+                    String errorMessage = violation.getDefaultMessage();
+
+                    log.error("Пользователь неверно указал значение для поля {}. {}", failedFieldName, errorMessage);
+                    return new Violation(failedFieldName, errorMessage);
+                })
                 .toList();
         return new FailedConstraintsResponse(violations);
     }
 
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorMessage handleServiceValidationException(ValidationException exception) {
+    public ErrorMessage handleFailedValidations(ValidationException exception) {
         log.error(exception.getMessage());
         return new ErrorMessage(exception.getMessage());
     }
