@@ -53,7 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getMostLikedFilms(int limit) {
+    public Collection<Film> getMostLikedFilms(int limit) throws NotFoundException {
         if (films.isEmpty()) {
             throw new NotFoundException("Пока что в сервис не было добавлено ни одного фильма");
         }
@@ -83,7 +83,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public ResponseMessage addLikeToFilm(Long filmId, Long userId) {
+    public ResponseMessage addLikeToFilm(Long filmId, Long userId) throws NotFoundException {
         Film foundFilm = checkFilmOnExistAndGet(filmId);
         User foundUser = checkUserOnExistAndGet(userId);
 

@@ -13,9 +13,9 @@ public interface FilmStorage {
 
     Film updateFilm(Film film) throws NotFoundException;
 
-    Collection<Film> getMostLikedFilms(int limit);
+    Collection<Film> getMostLikedFilms(int limit) throws NotFoundException;
 
-    ResponseMessage removeLikeFromFilm(Long filmId, Long userId);
+    ResponseMessage removeLikeFromFilm(Long filmId, Long userId) throws NotFoundException;
 
-    ResponseMessage addLikeToFilm(Long filmId, Long userId);
+    ResponseMessage addLikeToFilm(Long filmId, Long userId) throws NotFoundException;
 }

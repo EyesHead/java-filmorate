@@ -11,10 +11,10 @@ public class LoginFormValidator implements ConstraintValidator<LoginForm, String
     }
 
     @Override
-    public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        if (s == null) {
+    public boolean isValid(String str, ConstraintValidatorContext constraintValidatorContext) {
+        if (str == null) {
             return false;
         }
-        return !s.contains(" ");
+        return !str.contains(" ");
     }
 }

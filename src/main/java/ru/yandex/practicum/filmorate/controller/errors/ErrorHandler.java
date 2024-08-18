@@ -20,7 +20,7 @@ public class ErrorHandler {
      public FailedConstraintsResponse handleFieldOfMethodArgumentConstraints(MethodArgumentNotValidException e) {
         final List<Violation> violations = e.getBindingResult().getFieldErrors().stream()
                 .map(violation -> {
-                    log.warn("Пользователь неверно указал значение для поля {}. {}",
+                    log.error("Пользователь неверно указал значение для поля {}. {}",
                             violation.getField(), violation.getDefaultMessage());
                     return new Violation(
                             violation.getField(), // имя поля, где произошла ошибка
@@ -33,14 +33,14 @@ public class ErrorHandler {
     @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessage handleServiceValidationException(ValidationException exception) {
-        log.warn(exception.getMessage());
+        log.error(exception.getMessage());
         return new ErrorMessage(exception.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorMessage handleNotFoundException(NotFoundException exception) {
-        log.warn(exception.getMessage());
+        log.error(exception.getMessage());
         return new ErrorMessage(exception.getMessage());
     }
 

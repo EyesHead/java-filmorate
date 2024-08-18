@@ -4,8 +4,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.filmorate.validation.constraints.LoginForm;
 
 import java.time.LocalDate;
@@ -14,6 +16,7 @@ import java.util.Set;
 
 @Data
 @Builder(toBuilder = true, builderClassName = "UserBuilder")
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class User {
     @NotNull(message = "Значение id обязательно должно быть указано для обновления пользователя",
             groups = {Marker.OnUpdate.class})
