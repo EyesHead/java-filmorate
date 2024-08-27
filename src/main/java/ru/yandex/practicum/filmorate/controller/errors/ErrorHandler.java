@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.validation.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.validation.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.responses.error.ErrorMessage;
-import ru.yandex.practicum.filmorate.model.responses.error.FailedConstraintsResponse;
-import ru.yandex.practicum.filmorate.model.responses.error.Violation;
+import ru.yandex.practicum.filmorate.model.responses.error.ResponseFailedConstraints;
+import ru.yandex.practicum.filmorate.model.responses.error.FieldError;
 
 import java.util.List;
 
@@ -17,19 +17,19 @@ import java.util.List;
 public class ErrorHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-     public FailedConstraintsResponse handleAnnotationConstraints(MethodArgumentNotValidException e) {
-        final List<Violation> violations = e.getBindingResult()
+    public ResponseFailedConstraints handleAnnotationConstraints(MethodArgumentNotValidException e) {
+        final List<FieldError> fieldErrors = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(violation -> {
-                    String failedFieldName = violation.getField();
-                    String errorMessage = violation.getDefaultMessage();
+                .map(fieldError -> {
+                    String failedFieldName = fieldError.getField();
+                    String errorMessage = fieldError.getDefaultMessage();
 
                     log.error("Пользователь неверно указал значение для поля {}. {}", failedFieldName, errorMessage);
-                    return new Violation(failedFieldName, errorMessage);
+                    return new FieldError(failedFieldName, errorMessage);
                 })
                 .toList();
-        return new FailedConstraintsResponse(violations);
+        return new ResponseFailedConstraints(fieldErrors);
     }
 
     @ExceptionHandler(ValidationException.class)
