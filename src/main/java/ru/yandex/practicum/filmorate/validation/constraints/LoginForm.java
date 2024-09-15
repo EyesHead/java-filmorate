@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LoginForm {
-    String message() default "must be a well-formed login";
+    String message() default "The login form cannot have whitespace characters";
 
     Class<?>[] groups() default {};
 
