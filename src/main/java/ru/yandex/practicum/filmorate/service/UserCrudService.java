@@ -20,18 +20,18 @@ public class UserCrudService {
     private final UserValidator userValidator;
 
     public Collection<User> getAll() {
-        log.info("Получен запрос на получение всех пользователей");
+        log.info("(NEW) Получен запрос на получение всех пользователей");
         return userStorage.getAllUsers();
     }
 
     public User createUser(@Validated(Marker.OnCreate.class) User user) {
-        log.info("Получен запрос на создание пользователя с логином = '{}'", user.getLogin());
+        log.info("(NEW) Получен запрос на создание пользователя '{}' с логином = '{}'", user.getName(), user.getLogin());
         return userStorage.saveUser(user);
     }
 
     public User updateUser(@Validated(Marker.OnUpdate.class) User user) {
         long userId = user.getId();
-        log.info("Получен запрос на обновления данных о пользователе. Id = {}", userId);
+        log.info("(NEW) Получен запрос на обновления данных о пользователе '{}'.", userId);
         userValidator.checkUserOnExist(userId);
         return userStorage.updateUser(user);
     }

@@ -18,26 +18,26 @@ public class FilmCrudService {
     private final FilmValidator filmValidator;
 
     public Film getFilmById(long filmId) {
-        log.info("Получен новый запрос на получение фильма с ID = {}.", filmId);
+        log.info("(NEW) Получен новый запрос на получение фильма с ID = {}.", filmId);
         return filmRepo.getFilmById(filmId).orElseThrow(
                 () -> new NotFoundException("Фильм не найден. Id = " + filmId)
         );
     }
 
     public Collection<Film> getAll() {
-        log.info("Получен новый запрос на получение списка всех фильмов.");
+        log.info("(NEW) Получен новый запрос на получение списка всех фильмов.");
         return filmRepo.getAllFilms();
     }
 
     public Film create(Film film) {
-        log.info("Получен новый запрос на создание нового фильма '{}'", film.getName());
+        log.info("(NEW) Получен новый запрос на создание нового фильма '{}'", film.getName());
         filmValidator.checkFilmGenresOnExist(film.getGenres());
         filmValidator.checkFilmMpaRatingOnExist(film.getMpa());
         return filmRepo.saveFilm(film);
     }
 
     public Film update(Film film) {
-        log.info("Получен новый запрос на обновление фильма с ID = {}", film.getId());
+        log.info("(NEW) Получен новый запрос на обновление фильма с ID = {}", film.getId());
         filmValidator.checkFilmGenresOnExist(film.getGenres());
         filmValidator.checkFilmOnExist(film.getId());
         return filmRepo.updateFilm(film);

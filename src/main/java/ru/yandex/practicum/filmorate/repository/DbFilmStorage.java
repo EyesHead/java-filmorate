@@ -30,7 +30,7 @@ public class DbFilmStorage implements FilmStorage {
                 JOIN mpa m ON m.mpa_id = f.mpa_id
                 WHERE film_id = ?
                 """;
-        log.debug("Получение фильма с id = {} из БД. Запрос = '{}'", filmId, GET_FILMS_BY_ID_QUERY);
+        log.debug("Выполнение запроса для получения фильма с ID: {}", filmId);
 
         try {
             Film film = jdbcTemplate.queryForObject(
@@ -38,16 +38,16 @@ public class DbFilmStorage implements FilmStorage {
                     new SimpleFilmRowMapper(),
                     filmId);
 
-            Set<Genre> foundFilmGenres = getFilmGenres(filmId); // получаем жанры для фильма с названиями
+            Set<Genre> foundFilmGenres = getFilmGenres(filmId);
 
             Film foundFilmWithGenres = film.toBuilder()
                     .genres(foundFilmGenres)
                     .build();
 
-            log.debug("Фильм найден. {}", foundFilmWithGenres);
+            log.debug("Фильм с ID {} найден: {}", filmId, foundFilmWithGenres);
             return Optional.ofNullable(foundFilmWithGenres);
         } catch (EmptyResultDataAccessException e) {
-            log.warn("Фильм с id = {} не найден в базе данных.", filmId);
+            log.warn("Фильм с ID {} не найден.", filmId);
             return Optional.empty();
         }
     }
@@ -57,25 +57,23 @@ public class DbFilmStorage implements FilmStorage {
                 SELECT * FROM mpa m
                 INNER JOIN films f ON m.mpa_id = f.mpa_id
                 WHERE f.film_id = ?""";
-        log.debug("Получение mpa для фильма с id = {} из БД. Запрос = '{}'", filmId, GET_MPA_BY_FILM_ID_QUERY);
+        log.debug("Выполнение запроса для получения MPA фильма с ID: {}", filmId);
 
         try {
             Mpa mpa = jdbcTemplate.queryForObject(
                     GET_MPA_BY_FILM_ID_QUERY,
                     new MpaRowMapper(),
                     filmId);
-            log.debug("MPA для фильма с id = {} найдено: {}", filmId, mpa);
+            log.debug("MPA для фильма с ID {} найдено: {}", filmId, mpa);
             return Optional.ofNullable(mpa);
         } catch (EmptyResultDataAccessException e) {
-            log.warn("MPA для фильма с id = {} не найдено.", filmId);
+            log.warn("MPA для фильма с ID {} не найдено.", filmId);
             return Optional.empty();
         }
     }
 
     @Override
     public Collection<Film> getAllFilms() {
-        log.debug("Получение всех фильмов из базы данных.");
-
         Map<Long, Set<Genre>> filmGenresMap = getAllFilmIdsWithGenres();
 
         final String GET_ALL_FILMS_QUERY = """
@@ -83,11 +81,13 @@ public class DbFilmStorage implements FilmStorage {
                 FROM films f
                 JOIN mpa m ON f.mpa_id = m.mpa_id
                 """;
+        log.debug("Выполнение запроса для получения всех фильмов");
+
         List<Film> films = jdbcTemplate.query(
                 GET_ALL_FILMS_QUERY,
                 new FilmGenresRowMapper(filmGenresMap));
 
-        log.debug("Получены все фильмы: {}", films);
+        log.debug("Получено {} фильмов.", films.size());
         return films;
     }
 
@@ -97,6 +97,7 @@ public class DbFilmStorage implements FilmStorage {
                 FROM films_genres fg
                 INNER JOIN genres g ON fg.genre_id = g.genre_id
                 """;
+        log.debug("Получение жанров для всех фильмов");
 
         Map<Long, Set<Genre>> filmGenresMap = new HashMap<>();
         jdbcTemplate.query(GET_ALL_FILM_GENRES_QUERY, rs -> {
@@ -107,18 +108,18 @@ public class DbFilmStorage implements FilmStorage {
             );
             filmGenresMap.computeIfAbsent(filmId, id -> new HashSet<>()).add(genre);
         });
-        log.debug("Получены жанры для фильмов: {}", filmGenresMap);
+
+        log.debug("Жанры получены для {} фильмов", filmGenresMap.size());
         return filmGenresMap;
     }
 
     @Override
     public Film saveFilm(Film film) {
-        log.debug("Сохранение нового фильма в базу данных. {}", film);
-        // шаг 1. добавление через SimpleJdbcInsert фильма
+        log.info("Сохранение фильма: {}", film.getName());
+
         SimpleJdbcInsert insertActor = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
-
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("film_name", film.getName());
         parameters.put("description", film.getDescription());
@@ -127,22 +128,28 @@ public class DbFilmStorage implements FilmStorage {
         parameters.put("mpa_id", film.getMpa() == null ? null : film.getMpa().getId());
 
         long filmId = insertActor.executeAndReturnKey(parameters).longValue();
-        log.debug("Фильм успешно добавлен с id = {}", filmId);
+        log.debug("Фильм добавлен с ID: {}", filmId);
 
-        Mpa mpa = getFilmMpa(filmId).orElse(null);
+        // Получаем MPA рейтинг фильма с названием (если был указан)
+        Mpa filmMpa = null;
+        if (film.getMpa() != null) {
+            filmMpa = getFilmMpa(filmId).orElse(null);
+        }
 
-        // Шаг 2. Обновление жанров фильма в таблице films_genres (если они указаны)
+        // Получаем жанры фильмов с названиями (если были указаны)
+        Set<Genre> filmGenres = new HashSet<>();
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             updateFilmGenres(filmId, film.getGenres());
+            filmGenres = getFilmGenres(filmId);
         }
 
         Film savedFilm = film.toBuilder()
                 .id(filmId)
-                .mpa(mpa)
-                .genres(getFilmGenres(filmId))
+                .mpa(filmMpa)
+                .genres(filmGenres)
                 .build();
 
-        log.info("Фильм успешно создан и записан в базу данных. {}", savedFilm);
+        log.info("Фильм успешно сохранён: {}", savedFilm);
         return savedFilm;
     }
 
@@ -153,7 +160,8 @@ public class DbFilmStorage implements FilmStorage {
                 SET film_name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ?
                 WHERE film_id = ?
                 """;
-        log.debug("Обновление фильма в базе данных. {}", film);
+        log.info("Обновление фильма с ID: {}", film.getId());
+
         jdbcTemplate.update(UPDATE_FILM_QUERY,
                 film.getName(),
                 film.getDescription(),
@@ -162,22 +170,26 @@ public class DbFilmStorage implements FilmStorage {
                 film.getMpa() == null ? null : film.getMpa().getId(),
                 film.getId());
 
+        Film updatedFilm = getUpdatedFilm(film);
+
+        log.info("Фильм обновлен: {}", updatedFilm);
+        return updatedFilm;
+    }
+
+    private Film getUpdatedFilm(Film film) {
         var filmBuilder = film.toBuilder();
 
         Set<Genre> filmGenres = film.getGenres();
         long filmId = film.getId();
 
-        // Вставляем новые жанры для фильма (если они указаны)
         if (filmGenres != null && !filmGenres.isEmpty()) {
             updateFilmGenres(filmId, filmGenres);
             filmBuilder.genres(getFilmGenres(filmId));
         }
 
-        Film updatedFilm = filmBuilder
+        return filmBuilder
                 .mpa(getFilmMpa(filmId).orElse(null))
                 .build();
-        log.info("Фильм успешно обновлен в БД. {}", updatedFilm);
-        return updatedFilm;
     }
 
     @Override
@@ -192,29 +204,27 @@ public class DbFilmStorage implements FilmStorage {
                 LIMIT ?
                 """;
 
-        log.debug("Получение самых популярных фильмов с лимитом = {}", limit);
+        log.debug("Получение самых популярных фильмов с лимитом: {}", limit);
 
-        // Получаем жанры для фильмов
         Map<Long, Set<Genre>> filmGenresMap = getAllFilmIdsWithGenres();
 
-        // Запрос для получения фильмов
         List<Film> films = jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY,
                 new FilmGenresRowMapper(filmGenresMap),
                 limit);
 
-        log.debug("Получены самые популярные фильмы: {}", films);
+        log.debug("Получено {} популярных фильмов", films.size());
         return films;
     }
 
     @Override
     public boolean deleteLikeFromFilm(long filmId, long userId) {
         final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM users_films_like WHERE film_id = ? AND user_id = ?";
-        log.debug("Удаление лайка пользователя с id = {} от фильма с id = {}", userId, filmId);
+        log.debug("Удаление лайка от пользователя с ID {} для фильма с ID {}", userId, filmId);
 
         int rowsDeleted = jdbcTemplate.update(DELETE_LIKE_FROM_FILM_QUERY, filmId, userId);
         boolean isDeleted = rowsDeleted != 0;
 
-        log.info("Лайк для фильма с id = {} от пользователя с id = {} {} удален.", filmId, userId, isDeleted ? "успешно" : "не был найден");
+        log.info("Лайк для фильма с ID {} от пользователя с ID {} {}", filmId, userId, isDeleted ? "удален" : "не был найден");
         return isDeleted;
     }
 
@@ -240,27 +250,30 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Genre> getAllGenres() {
+    public Collection<Genre> getAllGenres() {
         final String GET_ALL_GENRES_QUERY = "SELECT * FROM genres ORDER BY genre_id ASC";
+        log.debug("Получение всех жанров");
 
-        log.debug("Получение всех жанров из базы данных.");
         List<Genre> genres = jdbcTemplate.query(GET_ALL_GENRES_QUERY, new GenreRowMapper());
-
-        log.debug("Получены все жанры: {}", genres);
+        log.debug("Получено {} жанров: {}", genres.size(), genres);
         return genres;
     }
 
     @Override
     public Optional<Genre> getGenre(long genreId) {
-        final String GET_GENRE_BY_ID = "SELECT * FROM genres WHERE genre_id = ?";
-        log.debug("Получение жанра с id = {} из базы данных.", genreId);
+        final String GET_GENRE_BY_ID_QUERY = "SELECT * FROM genres WHERE genre_id = ?";
+        log.debug("Получение жанра с ID: {}", genreId);
 
         try {
-            Genre foundGenre = jdbcTemplate.queryForObject(GET_GENRE_BY_ID, new GenreRowMapper(), genreId);
-            log.debug("Жанр с id = {} найден: {}", genreId, foundGenre);
-            return Optional.ofNullable(foundGenre);
+            Genre genre = jdbcTemplate.queryForObject(
+                    GET_GENRE_BY_ID_QUERY,
+                    new GenreRowMapper(),
+                    genreId
+            );
+            log.debug("Жанр с ID {} найден: {}", genreId, genre);
+            return Optional.ofNullable(genre);
         } catch (EmptyResultDataAccessException e) {
-            log.warn("Жанр с id = {} не найден в базе данных.", genreId);
+            log.warn("Жанр с ID {} не найден.", genreId);
             return Optional.empty();
         }
     }
@@ -308,11 +321,11 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     private void updateFilmGenres(long filmId, Set<Genre> filmGenres) {
-        log.debug("Обновление таблицы films_genres для фильма с id = {}", filmId);
+        log.debug("Обновление жанров для фильма с ID {}: {}", filmId, filmGenres);
         // Удаление существующих жанров фильма
         final String DELETE_FILM_GENRES_QUERY = "DELETE FROM films_genres WHERE film_id = ?";
         jdbcTemplate.update(DELETE_FILM_GENRES_QUERY, filmId);
-        log.debug("Удалены все жанры для фильма с id = {}", filmId);
+        log.debug("Удалены старые жанры для фильма с ID {}", filmId);
 
         // Вставка новых жанров для фильма
         final String INSERT_FILM_GENRES_QUERY = "INSERT INTO films_genres (film_id, genre_id) VALUES (?, ?)";
@@ -320,6 +333,6 @@ public class DbFilmStorage implements FilmStorage {
             jdbcTemplate.update(INSERT_FILM_GENRES_QUERY, filmId, genre.getId());
             log.trace("В таблицу films_genres добавлена запись с фильмом '{}' и жанром '{}'", filmId, genre);
         }
-        log.info("Таблица films_genres успешно обновлена для фильма с id = {}", filmId);
+        log.info("Жанры для фильма с ID {} успешно обновлены: {}", filmId, filmGenres);
     }
 }

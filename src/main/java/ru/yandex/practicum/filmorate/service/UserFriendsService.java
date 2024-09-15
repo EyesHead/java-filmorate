@@ -17,7 +17,7 @@ public class UserFriendsService {
     private final UserValidator userValidator;
 
     public void addFriend(long userId, long friendId) {
-        log.info("Получен запрос от пользователя '{}' на добавление в друзья пользователя '{}'",
+        log.info("(NEW) Получен запрос от пользователя '{}' на добавление в друзья пользователя '{}'",
                 userId, friendId);
         userValidator.checkUserOnExist(userId);
         userValidator.checkUserOnExist(friendId);
@@ -26,7 +26,7 @@ public class UserFriendsService {
     }
 
     public void removeFriend(long userId, long friendId) {
-        log.info("Получен запрос от пользователя '{}' на удаление из друзей пользователя '{}'",
+        log.info("(NEW) Получен запрос от пользователя '{}' на удаление из друзей пользователя '{}'",
                 userId, friendId);
 
         userValidator.checkUserOnExist(userId);
@@ -36,14 +36,14 @@ public class UserFriendsService {
     }
 
     public List<User> getUserFriends(long userId) {
-        log.info("Получен запрос от пользователя '{}' на получение списка всех друзей",
+        log.info("(NEW) Получен запрос от пользователя '{}' на получение списка всех друзей",
                 userId);
         userValidator.checkUserOnExist(userId);
         return userStorage.getUserFriends(userId);
     }
 
     public List<User> getCommonFriends(long userId, long friendId) {
-        log.info("Получен запрос от пользователя '{}' на поиск общих друзей с пользователем '{}'",
+        log.info("(NEW) Получен запрос от пользователя '{}' на поиск общих друзей с пользователем '{}'",
                 userId, friendId);
         userValidator.checkUserOnExist(userId);
         userValidator.checkUserOnExist(friendId);

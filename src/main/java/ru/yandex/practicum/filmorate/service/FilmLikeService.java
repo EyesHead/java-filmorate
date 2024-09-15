@@ -19,7 +19,7 @@ public class FilmLikeService {
     private final UserValidator userValidator;
 
     public void addLikeToFilm(long filmId, long userId) {
-        log.info("Получен запрос от пользователя на добавление лайка к фильму. userId='{}',filmId='{}'",
+        log.info("(NEW) Получен запрос от пользователя на добавление лайка к фильму. userId='{}',filmId='{}'",
                 userId, filmId);
 
         filmValidator.checkFilmOnExist(filmId);
@@ -27,17 +27,16 @@ public class FilmLikeService {
         userValidator.checkUserOnExist(userId);
 
         filmStorage.saveLikeToFilm(filmId, userId);
-        log.info("Лайк был успешно добавлен. userId='{}', filmId='{}'", userId, filmId);
     }
 
     public void removeLikeFromFilm(long filmId, long userId) {
-        log.info("Получен запрос от пользователя на удаление лайка из фильма. userId='{}',filmId='{}'", userId, filmId);
+        log.info("(NEW) Получен запрос от пользователя на удаление лайка из фильма. userId='{}',filmId='{}'", userId, filmId);
         filmStorage.deleteLikeFromFilm(filmId, userId);
     }
 
     public Collection<Film> getMostLikedFilms(Optional<Integer> countOpt) {
         int limit = countOpt.orElse(10);
-        log.info("Получен новый запрос на получение {} самых залайканых фильмов", limit);
+        log.info("(NEW) Получен новый запрос на получение {} самых залайканых фильмов", limit);
 
         return filmStorage.getMostLikedFilms(limit);
     }

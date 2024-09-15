@@ -21,8 +21,9 @@ public class FilmValidator {
 
 
     public void checkFilmMpaRatingOnExist(Mpa mpa) throws InvalidDataRequestException {
-        log.debug("Проверка MPA рейтинга на существование '{}' в БД.", mpa.getId());
         if (mpa == null) return;
+
+        log.debug("Проверка MPA рейтинга на существование '{}' в БД.", mpa.getId());
 
         filmRepo.getMpa(mpa.getId()).orElseThrow(
                 () -> new InvalidDataRequestException("MPA не найден. Mpa ID = " + mpa.getId())
@@ -33,10 +34,12 @@ public class FilmValidator {
 
     public void checkFilmGenresOnExist(Set<Genre> filmGenres) throws InvalidDataRequestException {
         log.debug("Проверка на существование жанров в БД. {}", filmGenres);
-        if (filmGenres.isEmpty()) {
+
+        if (filmGenres == null || filmGenres.isEmpty()) {
             log.debug("Фильм не имеет жанров.");
             return;
         }
+
         List<Genre> allGenres = (List<Genre>) filmRepo.getAllGenres();
         // Создаем набор идентификаторов всех жанров для быстрой проверки наличия
         List<Long> allGenreIds = allGenres.stream()

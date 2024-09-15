@@ -13,11 +13,11 @@ public class UserValidator {
     private UserStorage userStorage;
 
     public void checkUserOnExist(long userId) throws NotFoundException {
-        log.debug("Проверка пользователя '{}' на существование в БД.", userId);
+        log.debug("Проверка существования пользователя '{}' в БД.", userId);
 
         userStorage.getUserById(userId).orElseThrow(
-                () -> new NotFoundException("User was not found. ID = " + userId));
+                () -> new NotFoundException("Пользователь не найден. ID = " + userId));
 
-        log.debug("Пользователь найден. Проверка выполнена");
+        log.debug("Пользователь '{}' найден. Проверка выполнена", userId);
     }
 }
