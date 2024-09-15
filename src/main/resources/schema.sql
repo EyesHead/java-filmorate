@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS mpa, users, films, genres, films_genres, users_films_like, friendship;
+
 -- Таблица mpa
 CREATE TABLE IF NOT EXISTS mpa (
     mpa_id BIGINT AUTO_INCREMENT PRIMARY KEY,
