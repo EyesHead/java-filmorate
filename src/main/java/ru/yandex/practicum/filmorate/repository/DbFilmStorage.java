@@ -112,7 +112,7 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film save(Film film) {
+    public Film saveFilm(Film film) {
         log.debug("Сохранение нового фильма в базу данных. {}", film);
         // шаг 1. добавление через SimpleJdbcInsert фильма
         SimpleJdbcInsert insertActor = new SimpleJdbcInsert(jdbcTemplate)
@@ -268,14 +268,15 @@ public class DbFilmStorage implements FilmStorage {
     @Override
     public Set<Genre> getFilmGenres(long filmId) {
         final String GET_GENRES_BY_FILM_ID_QUERY = """
-                SELECT g.genre_id, g.name
-                FROM genres g
-                INNER JOIN films_genres fg ON g.genre_id = fg.genre_id
-                WHERE fg.film_id = ?
-                ORDER BY g.genre_id ASC""";
+            SELECT g.genre_id, g.name
+            FROM genres g
+            INNER JOIN films_genres fg ON g.genre_id = fg.genre_id
+            WHERE fg.film_id = ?
+            ORDER BY g.genre_id ASC""";
         log.debug("Получение жанров для фильма с id = {}", filmId);
 
-        Set<Genre> genres = new HashSet<>(jdbcTemplate.query(GET_GENRES_BY_FILM_ID_QUERY, new GenreRowMapper(), filmId));
+        // Используем LinkedHashSet для сохранения порядка жанров
+        Set<Genre> genres = new LinkedHashSet<>(jdbcTemplate.query(GET_GENRES_BY_FILM_ID_QUERY, new GenreRowMapper(), filmId));
         log.debug("Жанры для фильма с id = {}: {}", filmId, genres);
         return genres;
     }

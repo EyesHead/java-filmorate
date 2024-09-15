@@ -33,7 +33,7 @@ public class FilmCrudService {
         log.info("Получен новый запрос на создание нового фильма '{}'", film.getName());
         filmValidator.checkFilmGenresOnExist(film.getGenres());
         filmValidator.checkFilmMpaRatingOnExist(film.getMpa());
-        return filmRepo.save(film);
+        return filmRepo.saveFilm(film);
     }
 
     public Film update(Film film) {

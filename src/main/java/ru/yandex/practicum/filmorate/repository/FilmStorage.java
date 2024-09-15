@@ -12,7 +12,7 @@ public interface FilmStorage {
 
     Optional<Film> getFilmById(long filmId);
 
-    Film save(Film film);
+    Film saveFilm(Film film);
 
     Film updateFilm(Film film);
 

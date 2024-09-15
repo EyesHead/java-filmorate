@@ -44,7 +44,7 @@ class DbFilmStorageTest {
                 .mpa(new Mpa(1L, null))
                 .build();
 
-        Film savedFilm = dbFilmStorage.save(film);
+        Film savedFilm = dbFilmStorage.saveFilm(film);
 
         // Act
         Optional<Film> filmOptional = dbFilmStorage.getFilmById(savedFilm.getId());
@@ -81,8 +81,8 @@ class DbFilmStorageTest {
                 .mpa(new Mpa(3L, null))
                 .build();
 
-        dbFilmStorage.save(film1);
-        dbFilmStorage.save(film2);
+        dbFilmStorage.saveFilm(film1);
+        dbFilmStorage.saveFilm(film2);
 
         // Act
         Collection<Film> films = dbFilmStorage.getAllFilms();
@@ -114,8 +114,8 @@ class DbFilmStorageTest {
                 .build();
 
         // Сохраняем фильмы в базу данных
-        Film savedFilm1 = dbFilmStorage.save(film1);
-        Film savedFilm2 = dbFilmStorage.save(film2);
+        Film savedFilm1 = dbFilmStorage.saveFilm(film1);
+        Film savedFilm2 = dbFilmStorage.saveFilm(film2);
 
         // Создаем пользователей
         long userId1 = 1L; // Идентификатор первого пользователя
@@ -145,7 +145,7 @@ class DbFilmStorageTest {
     }
 
     @Test
-    void testSaveLikeToFilm() {
+    void testSaveFilmLikeToFilm() {
         // Arrange: Добавляем фильм и пользователя
         Film film = Film.builder()
                 .name("Avatar")
@@ -155,7 +155,7 @@ class DbFilmStorageTest {
                 .mpa(new Mpa(2L, null))
                 .build();
 
-        Film savedFilm = dbFilmStorage.save(film);
+        Film savedFilm = dbFilmStorage.saveFilm(film);
         jdbcTemplate.update("INSERT INTO users (user_id, username, email, login) VALUES (?, ?, ?, ?)", 1L, "User1", "user1@example.com", "user1login");
 
         // Act: Добавляем лайк от пользователя
@@ -177,7 +177,7 @@ class DbFilmStorageTest {
                 .mpa(new Mpa(4L, null))
                 .build();
 
-        Film savedFilm = dbFilmStorage.save(film);
+        Film savedFilm = dbFilmStorage.saveFilm(film);
         jdbcTemplate.update("INSERT INTO users (user_id, username, email, login) VALUES (?, ?, ?, ?)", 1L, "User1", "user1@example.com", "user1login");
 
         dbFilmStorage.saveLikeToFilm(savedFilm.getId(), 1L);
