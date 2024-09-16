@@ -19,12 +19,12 @@ public class FilmMpaService {
     FilmStorage filmRepository;
 
     public Collection<Mpa> getAllMpaRatings() {
-        log.info("(NEW) Получен новый запрос получение всех рейтингов MPAA сервиса");
+        log.info("(NEW) Получен новый запрос получение всех рейтингов MPA сервиса");
         return filmRepository.getAllMpa();
     }
 
     public Mpa getMpaById(long mpaId) {
-        log.info("(NEW) Получен новый запрос получение MPAA рейтинга с MPAA ID = {}", mpaId);
+        log.info("(NEW) Получен новый запрос получение MPA рейтинга с MPA ID = {}", mpaId);
         return filmRepository.getMpa(mpaId).orElseThrow(
                 () -> new NotFoundException("Mpa rating not found. Id = " + mpaId));
     }
