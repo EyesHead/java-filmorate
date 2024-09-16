@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.entity.User;
-import ru.yandex.practicum.filmorate.exception.InvalidDataRequestException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.repository.UserStorage;
 import ru.yandex.practicum.filmorate.service.util.UserValidator;
@@ -25,7 +25,7 @@ public class UserFriendsService {
             userValidator.checkUserOnExist(userId);
             userValidator.checkUserOnExist(friendId);
         } catch (ValidationException e) {
-            throw new InvalidDataRequestException(e.getMessage());
+            throw new NotFoundException(e.getMessage());
         }
 
         userStorage.saveFriendToUser(userId, friendId);
@@ -39,7 +39,7 @@ public class UserFriendsService {
             userValidator.checkUserOnExist(userId);
             userValidator.checkUserOnExist(friendId);
         } catch (ValidationException e) {
-            throw new InvalidDataRequestException(e.getMessage());
+            throw new NotFoundException(e.getMessage());
         }
 
         userStorage.removeFriend(userId, friendId);
@@ -52,7 +52,7 @@ public class UserFriendsService {
         try {
             userValidator.checkUserOnExist(userId);
         } catch (ValidationException e) {
-            throw new InvalidDataRequestException(e.getMessage());
+            throw new NotFoundException(e.getMessage());
         }
 
         return userStorage.getUserFriends(userId);
@@ -66,7 +66,7 @@ public class UserFriendsService {
             userValidator.checkUserOnExist(userId);
             userValidator.checkUserOnExist(friendId);
         } catch (ValidationException e) {
-            throw new InvalidDataRequestException(e.getMessage());
+            throw new NotFoundException(e.getMessage());
         }
 
         return userStorage.getCommonFriends(userId, friendId);
