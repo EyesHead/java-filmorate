@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.InvalidDataRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.entity.Film;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
 import ru.yandex.practicum.filmorate.service.util.FilmValidator;
 
@@ -31,15 +33,23 @@ public class FilmCrudService {
 
     public Film create(Film film) {
         log.info("(NEW) Получен новый запрос на создание нового фильма '{}'", film.getName());
-        filmValidator.checkFilmGenresOnExist(film.getGenres());
-        filmValidator.checkFilmMpaRatingOnExist(film.getMpa());
+        try {
+            filmValidator.checkFilmGenresOnExist(film.getGenres());
+            filmValidator.checkFilmMpaRatingOnExist(film.getMpa());
+        } catch (ValidationException e) {
+            throw new InvalidDataRequestException(e.getMessage());
+        }
         return filmRepo.saveFilm(film);
     }
 
     public Film update(Film film) {
         log.info("(NEW) Получен новый запрос на обновление фильма с ID = {}", film.getId());
-        filmValidator.checkFilmGenresOnExist(film.getGenres());
-        filmValidator.checkFilmOnExist(film.getId());
+        try {
+            filmValidator.checkFilmGenresOnExist(film.getGenres());
+            filmValidator.checkFilmOnExist(film.getId());
+        } catch (ValidationException e) {
+            throw new InvalidDataRequestException(e.getMessage());
+        }
         return filmRepo.updateFilm(film);
     }
 }

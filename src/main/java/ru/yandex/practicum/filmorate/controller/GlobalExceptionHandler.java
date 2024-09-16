@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -56,13 +55,6 @@ public class GlobalExceptionHandler {
     public ErrorMessage handleInvalidRequestDataException(InvalidDataRequestException e) {
         log.warn(e.getMessage());
         return new ErrorMessage(e.getMessage());
-    }
-
-    @ExceptionHandler(EmptyResultDataAccessException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorMessage handleEmptyResultDataAccessException(EmptyResultDataAccessException exception) {
-        log.warn("Результат не найден: {}", exception.getMessage());
-        return new ErrorMessage("Ресурс не найден.");
     }
 
     @ExceptionHandler(DataAccessException.class)

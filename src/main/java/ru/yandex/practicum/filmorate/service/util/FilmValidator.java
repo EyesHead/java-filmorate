@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.entity.Genre;
 import ru.yandex.practicum.filmorate.entity.Mpa;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
-import ru.yandex.practicum.filmorate.exception.InvalidDataRequestException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.util.List;
 import java.util.Set;
@@ -20,19 +18,19 @@ public class FilmValidator {
     private FilmStorage filmRepo;
 
 
-    public void checkFilmMpaRatingOnExist(Mpa mpa) throws InvalidDataRequestException {
+    public void checkFilmMpaRatingOnExist(Mpa mpa) throws ValidationException {
         if (mpa == null) return;
 
         log.debug("Проверка MPA рейтинга на существование '{}' в БД.", mpa.getId());
 
         filmRepo.getMpa(mpa.getId()).orElseThrow(
-                () -> new InvalidDataRequestException("MPA не найден. Mpa ID = " + mpa.getId())
+                () -> new ValidationException("MPA не найден. Mpa ID = " + mpa.getId())
         );
 
         log.debug("MPA рейтинг с ID='{}' существует. Проверка завершена.", mpa.getId());
     }
 
-    public void checkFilmGenresOnExist(Set<Genre> filmGenres) throws InvalidDataRequestException {
+    public void checkFilmGenresOnExist(Set<Genre> filmGenres) throws ValidationException {
         log.debug("Проверка на существование жанров в БД. {}", filmGenres);
 
         if (filmGenres == null || filmGenres.isEmpty()) {
@@ -49,24 +47,24 @@ public class FilmValidator {
         // Проверяем каждый жанр фильма
         for (Genre requestGenre : filmGenres) {
             if (!allGenreIds.contains(requestGenre.getId())) {
-                throw new InvalidDataRequestException(
+                throw new ValidationException(
                         String.format("Жанр с ID='%d' не найден в БД", requestGenre.getId()));
             }
         }
     }
 
-    public void checkFilmOnExist(long filmId) throws NotFoundException {
+    public void checkFilmOnExist(long filmId) throws ValidationException {
         log.debug("Проверка фильма на существование в БД. FILM ID = {}", filmId);
 
         if (filmRepo.getFilmById(filmId).isEmpty()) {
-            throw new NotFoundException("Фильм не найден. ID = " + filmId);
+            throw new ValidationException("Фильм не найден. ID = " + filmId);
         }
         log.debug("Фильм существует. Проверка завершена.");
     }
 
-    public void checkIsUserAlreadyLikedFilm(long filmId, long userId) throws DuplicatedDataException {
+    public void checkIsUserAlreadyLikedFilm(long filmId, long userId) throws ValidationException {
         if (filmRepo.getUsersIdsWhoLikedFilm(filmId).contains(userId)) {
-            throw new DuplicatedDataException("User with id = " + userId + " already liked film " + filmId);
+            throw new ValidationException("User with id = " + userId + " already liked film " + filmId);
         }
     }
 }
