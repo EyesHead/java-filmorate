@@ -29,7 +29,7 @@ public class User {
 
     private final String name;
 
-    @Past(groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
+    @PastOrPresent(groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
     private final LocalDate birthday;
 
     @Builder.Default

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -138,7 +139,7 @@ public class DbFilmStorage implements FilmStorage {
 
         // Получаем жанры фильмов с названиями (если были указаны)
         Set<Genre> filmGenres = new HashSet<>();
-        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(film.getGenres())) {
             updateFilmGenres(filmId, film.getGenres());
             filmGenres = getFilmGenres(filmId);
         }
@@ -179,10 +180,9 @@ public class DbFilmStorage implements FilmStorage {
     private Film getUpdatedFilm(Film film) {
         var filmBuilder = film.toBuilder();
 
-        Set<Genre> filmGenres = film.getGenres();
         long filmId = film.getId();
-
-        if (filmGenres != null && !filmGenres.isEmpty()) {
+        Set<Genre> filmGenres = film.getGenres();
+        if (CollectionUtils.isNotEmpty(filmGenres)) {
             updateFilmGenres(filmId, filmGenres);
             filmBuilder.genres(getFilmGenres(filmId));
         }

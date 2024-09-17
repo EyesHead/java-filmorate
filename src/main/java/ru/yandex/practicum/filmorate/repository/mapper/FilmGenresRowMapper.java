@@ -19,9 +19,8 @@ public class FilmGenresRowMapper implements RowMapper<Film> {
     public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
         long filmId = rs.getLong("film_id");
 
-        // if the value is SQL NULL, the value returned is 0
-        Mpa mpa = rs.getLong("mpa_id") == 0 ?
-                null : new Mpa(rs.getLong("mpa_id"), rs.getString("mpa_name"));
+        Mpa mpa = rs.getLong("mpa_id") == 0 ? null :
+                new Mpa(rs.getLong("mpa_id"), rs.getString("mpa_name"));
 
         // Получаем жанры для текущего фильма из filmGenresMap
         Set<Genre> genres = filmGenresMap.getOrDefault(filmId, Set.of());

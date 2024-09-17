@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.util;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.entity.Genre;
 import ru.yandex.practicum.filmorate.entity.Mpa;
@@ -35,7 +36,7 @@ public class FilmValidator {
     public void checkFilmGenresOnExist(Set<Genre> filmGenres) throws InvalidDataRequestException {
         log.debug("Проверка на существование жанров в БД. {}", filmGenres);
 
-        if (filmGenres == null || filmGenres.isEmpty()) {
+        if (!CollectionUtils.isNotEmpty(filmGenres)) {
             log.debug("Фильм не имеет жанров.");
             return;
         }
