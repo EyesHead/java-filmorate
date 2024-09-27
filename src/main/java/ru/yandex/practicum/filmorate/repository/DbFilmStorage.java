@@ -335,4 +335,39 @@ public class DbFilmStorage implements FilmStorage {
         }
         log.info("Жанры для фильма с ID {} успешно обновлены: {}", filmId, filmGenres);
     }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        Map<Long, Set<Genre>> filmGenresMap = getAllFilmIdsWithGenres();
+
+        String sql = """
+        SELECT f.*, mpa.*, COUNT(uf.user_id) AS likes_count
+        FROM films AS f
+        LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id
+        LEFT JOIN users_films_like AS uf ON f.film_id = uf.film_id
+        LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id
+        WHERE f.film_id IN (
+            SELECT l1.film_id
+            FROM users_films_like AS l1
+            JOIN users_films_like AS l2 ON l1.film_id = l2.film_id
+            WHERE l1.user_id = ? AND l2.user_id = ?
+        )
+        GROUP BY f.film_id, mpa.mpa_id
+        ORDER BY likes_count DESC
+    """;
+
+        log.debug("Начало выполнения запроса на получение общих фильмов пользователей с id = {} и id = {}. Запрос: {}",
+                userId, friendId, sql);
+
+        List<Film> commonFilms = jdbcTemplate.query(sql, new FilmGenresRowMapper(filmGenresMap), userId, friendId);
+
+        if (commonFilms.isEmpty()) {
+            log.info("Общие фильмы для пользователей с id = {} и id = {} не найдены.", userId, friendId);
+        } else {
+            log.info("Общие фильмы для пользователей с id = {} и id = {} успешно получены. Общие фильмы: {}",
+                    userId, friendId, commonFilms);
+        }
+
+        return commonFilms;
+    }
 }

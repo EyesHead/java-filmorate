@@ -33,4 +33,6 @@ public interface FilmStorage {
     Optional<Genre> getGenre(long genreId);
 
     Optional<Mpa> getMpa(long mpaId);
+
+    List<Film> getCommonFilms(long userId, long friendId);
 }
