@@ -47,7 +47,7 @@ public class FilmCrudService {
         return filmRepo.updateFilm(film);
     }
 
-    public List<Film> getCommonFilms(long userId, long friendId){
+    public List<Film> getCommonFilms(long userId, long friendId) {
         log.info("(NEW) Получен новый запрос на получение общих фильмов пользователей userId='{}',filmId='{}'",
                 userId, friendId);
 
