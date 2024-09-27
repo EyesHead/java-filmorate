@@ -14,7 +14,8 @@ public class ReviewValidator {
 
     public void checkReviewOnExistence(long reviewId) throws NotFoundException {
         log.info("Проверка наличия отзыва с ID {}.", reviewId);
-        if (!reviewStorage.checkReview(reviewId)) throw new NotFoundException("Отзыв с ID " + reviewId + " отсутствует");
-        log.info("Отзыв с ID {} найден." , reviewId);
+        if (!reviewStorage.checkReview(reviewId))
+            throw new NotFoundException("Отзыв с ID " + reviewId + " отсутствует");
+        log.info("Отзыв с ID {} найден.", reviewId);
     }
 }
