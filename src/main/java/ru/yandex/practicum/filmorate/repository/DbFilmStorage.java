@@ -225,8 +225,7 @@ public class DbFilmStorage implements FilmStorage {
                 LEFT JOIN users_films_like uf ON f.film_id = uf.film_id
                 LEFT JOIN films_genres gf ON gf.film_id = f.film_id
                 WHERE gf.genre_id = ? AND SELECT EXTRACT (YEAR FROM CAST(f.release_date AS date) ) = ?
-                GROUP BY f.film_id, m.mpa_name
-                GROUP BY gf.genre_id
+                GROUP BY f.film_id, m.mpa_name, gf.genre_id
                 ORDER BY COUNT(uf.user_id) DESC
                 LIMIT ?
                 """;
@@ -250,8 +249,7 @@ public class DbFilmStorage implements FilmStorage {
                 LEFT JOIN users_films_like uf ON f.film_id = uf.film_id
                 LEFT JOIN films_genres gf ON gf.film_id = f.film_id
                 WHERE gf.genre_id = ? OR SELECT EXTRACT (YEAR FROM CAST(f.release_date AS date) ) = ?
-                GROUP BY f.film_id, m.mpa_name
-                GROUP BY gf.genre_id
+                GROUP BY f.film_id, m.mpa_name, gf.genre_id
                 ORDER BY COUNT(uf.user_id) DESC
                 LIMIT ?
                 """;
