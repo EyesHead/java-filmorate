@@ -39,10 +39,14 @@ public class FilmLikeService {
         filmStorage.deleteLikeFromFilm(filmId, userId);
     }
 
-    public Collection<Film> getMostLikedFilms(Optional<Integer> countOpt) {
-        int limit = countOpt.orElse(10);
-        log.info("(NEW) Получен новый запрос на получение {} самых залайканых фильмов", limit);
-
-        return filmStorage.getMostLikedFilms(limit);
+    public Collection<Film> getMostLikedFilms(Integer count, Integer genreId, Integer year) {
+        log.info("(NEW) Получен новый запрос на получение {} самых залайканых фильмов жанра {} года {}", count, genreId, year);
+        if (genreId != null & year != null) {
+            return filmStorage.getMostLikedFilmsByGenreAndYear(count, genreId, year);
+        } else if (genreId == null & year == null) {
+            return filmStorage.getMostLikedFilms(count);
+        } else {
+            return filmStorage.getMostLikedFilmsByGenreOrYear(count, genreId, year);
+        }
     }
 }

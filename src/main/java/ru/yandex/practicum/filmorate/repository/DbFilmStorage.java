@@ -217,6 +217,54 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
+    public Collection<Film> getMostLikedFilmsByGenreAndYear(int limit, int genreId, int year) {
+        final String GET_MOST_LIKED_FILMS_QUERY = """
+                SELECT f.*, m.mpa_name
+                FROM films f
+                LEFT JOIN mpa m ON f.mpa_id = m.mpa_id
+                LEFT JOIN users_films_like uf ON f.film_id = uf.film_id
+                LEFT JOIN films_genres gf ON gf.film_id = f.film_id
+                WHERE gf.genre_id = ? AND SELECT EXTRACT (YEAR FROM CAST(f.release_date AS date) ) = ?
+                GROUP BY f.film_id, m.mpa_name, gf.genre_id
+                ORDER BY COUNT(uf.user_id) DESC
+                LIMIT ?
+                """;
+        log.debug("Получение самых популярных фильмов с лимитом: {}", limit);
+
+        Map<Long, Set<Genre>> filmGenresMap = getAllFilmIdsWithGenres();
+
+        List<Film> films = jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY,
+                new FilmGenresRowMapper(filmGenresMap), genreId, year, limit);
+
+        log.debug("Получено {} популярных фильмов", films.size());
+        return films;
+    }
+
+    @Override
+    public Collection<Film> getMostLikedFilmsByGenreOrYear(Integer limit, Integer genreId, Integer year) {
+        final String GET_MOST_LIKED_FILMS_QUERY = """
+                SELECT f.*, m.mpa_name
+                FROM films f
+                LEFT JOIN mpa m ON f.mpa_id = m.mpa_id
+                LEFT JOIN users_films_like uf ON f.film_id = uf.film_id
+                LEFT JOIN films_genres gf ON gf.film_id = f.film_id
+                WHERE gf.genre_id = ? OR SELECT EXTRACT (YEAR FROM CAST(f.release_date AS date) ) = ?
+                GROUP BY f.film_id, m.mpa_name, gf.genre_id
+                ORDER BY COUNT(uf.user_id) DESC
+                LIMIT ?
+                """;
+        log.debug("Получение самых популярных фильмов с лимитом: {}", limit);
+
+        Map<Long, Set<Genre>> filmGenresMap = getAllFilmIdsWithGenres();
+
+        List<Film> films = jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY,
+                new FilmGenresRowMapper(filmGenresMap), genreId, year, limit);
+
+        log.debug("Получено {} популярных фильмов", films.size());
+        return films;
+    }
+
+    @Override
     public boolean deleteLikeFromFilm(long filmId, long userId) {
         final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM users_films_like WHERE film_id = ? AND user_id = ?";
         log.debug("Удаление лайка от пользователя с ID {} для фильма с ID {}", userId, filmId);
@@ -281,11 +329,11 @@ public class DbFilmStorage implements FilmStorage {
     @Override
     public Set<Genre> getFilmGenres(long filmId) {
         final String GET_GENRES_BY_FILM_ID_QUERY = """
-            SELECT g.genre_id, g.name
-            FROM genres g
-            INNER JOIN films_genres fg ON g.genre_id = fg.genre_id
-            WHERE fg.film_id = ?
-            ORDER BY g.genre_id ASC""";
+                SELECT g.genre_id, g.name
+                FROM genres g
+                INNER JOIN films_genres fg ON g.genre_id = fg.genre_id
+                WHERE fg.film_id = ?
+                ORDER BY g.genre_id ASC""";
         log.debug("Получение жанров для фильма с id = {}", filmId);
 
         // Используем LinkedHashSet для сохранения порядка жанров
