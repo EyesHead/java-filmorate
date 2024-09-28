@@ -38,7 +38,7 @@ public class FilmReviewService {
 
     public void deleteReview(long id) {
         log.info("Удаление отзыва с ID {}", id);
-        if (!reviewStorage.removeReview(id)) throw new NotFoundException("Отзыв с id " + id + " отсутствует");
+        reviewStorage.removeReview(id);
     }
 
     public Review getReview(long id) {
@@ -65,7 +65,6 @@ public class FilmReviewService {
     }
 
     public void deleteReviewLikeDislike(long reviewId, long userId) {
-        if (!reviewStorage.removeLikeDislike(reviewId, userId))
-            throw new NotFoundException("Не удалось удалить оценку отзыва");
+        reviewStorage.removeLikeDislike(reviewId, userId);
     }
 }
