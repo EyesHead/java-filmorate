@@ -48,7 +48,7 @@ public class FilmCrudService {
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
-        log.info("(NEW) Получен новый запрос на получение общих фильмов пользователей userId='{}',filmId='{}'",
+        log.info("(NEW) Получен новый запрос на получение общих фильмов пользователей userId='{}',friendId='{}'",
                 userId, friendId);
 
         userValidator.checkUserOnExist(userId);

@@ -345,7 +345,6 @@ public class DbFilmStorage implements FilmStorage {
         FROM films AS f
         LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id
         LEFT JOIN users_films_like AS uf ON f.film_id = uf.film_id
-        LEFT JOIN films_genres AS fg ON f.film_id = fg.film_id
         WHERE f.film_id IN (
             SELECT l1.film_id
             FROM users_films_like AS l1
