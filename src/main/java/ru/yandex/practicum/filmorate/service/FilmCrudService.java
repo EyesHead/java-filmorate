@@ -56,4 +56,10 @@ public class FilmCrudService {
 
         return filmRepo.getCommonFilms(userId, friendId);
     }
+
+    public void deleteFilmById(long filmId) {
+        log.info("(NEW) Получен запрос на удаление фильма с id {} ", filmId);
+        filmValidator.checkFilmOnExist(filmId);
+        filmRepo.deleteFilmById(filmId);
+    }
 }
