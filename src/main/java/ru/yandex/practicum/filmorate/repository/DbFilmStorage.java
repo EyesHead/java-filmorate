@@ -352,7 +352,7 @@ public class DbFilmStorage implements FilmStorage {
             JOIN users_films_like AS l2 ON l1.film_id = l2.film_id
             WHERE l1.user_id = ? AND l2.user_id = ?
         )
-        GROUP BY f.film_id, mpa.mpa_id
+        GROUP BY f.film_id
         ORDER BY likes_count DESC
     """;
 
