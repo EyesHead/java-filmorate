@@ -22,6 +22,10 @@ public interface FilmStorage {
 
     Collection<Film> getMostLikedFilms(int limit);
 
+    Collection<Film> getMostLikedFilmsByGenreAndYear(int limit, int genreId, int year);
+
+    Collection<Film> getMostLikedFilmsByGenreOrYear(Integer limit, Integer genreId, Integer year);
+
     Collection<Long> getUsersIdsWhoLikedFilm(long filmId);
 
     Set<Genre> getFilmGenres(long filmId);
