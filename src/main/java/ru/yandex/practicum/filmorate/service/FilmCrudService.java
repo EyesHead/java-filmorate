@@ -7,8 +7,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.entity.Film;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
 import ru.yandex.practicum.filmorate.service.util.FilmValidator;
+import ru.yandex.practicum.filmorate.service.util.UserValidator;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +18,7 @@ import java.util.Collection;
 public class FilmCrudService {
     private final FilmStorage filmRepo;
     private final FilmValidator filmValidator;
+    private final UserValidator userValidator;
 
     public Film getFilmById(long filmId) {
         log.info("(NEW) Получен новый запрос на получение фильма с ID = {}.", filmId);
@@ -42,5 +45,15 @@ public class FilmCrudService {
 
         filmValidator.checkFilmOnExist(film.getId());
         return filmRepo.updateFilm(film);
+    }
+
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        log.info("(NEW) Получен новый запрос на получение общих фильмов пользователей userId='{}',friendId='{}'",
+                userId, friendId);
+
+        userValidator.checkUserOnExist(userId);
+        userValidator.checkUserOnExist(friendId);
+
+        return filmRepo.getCommonFilms(userId, friendId);
     }
 }
