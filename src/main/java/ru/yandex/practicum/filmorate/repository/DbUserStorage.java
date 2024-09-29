@@ -23,9 +23,9 @@ public class DbUserStorage implements UserStorage {
     @Override
     public Collection<User> getAllUsers() {
         final String GET_ALL_USERS_QUERY = """
-            SELECT user_id, email, login, username, birthday
-            FROM users
-            """;
+                SELECT user_id, email, login, username, birthday
+                FROM users
+                """;
         log.debug("Начало выполнения запроса на получение всех пользователей. Запрос: {}", GET_ALL_USERS_QUERY);
 
         List<User> users = jdbcTemplate.query(GET_ALL_USERS_QUERY, new UserRowMapper());
@@ -71,10 +71,10 @@ public class DbUserStorage implements UserStorage {
         log.debug("Начало обновления данных пользователя с id = {}. Пользователь: {}", user.getId(), user);
 
         final String UPDATE_USER_QUERY = """
-            UPDATE users
-            SET email = ?, login = ?, username = ?, birthday = ?
-            WHERE user_id = ?
-            """;
+                UPDATE users
+                SET email = ?, login = ?, username = ?, birthday = ?
+                WHERE user_id = ?
+                """;
 
         log.trace("Подготовка запроса для обновления данных пользователя. Запрос: {}", UPDATE_USER_QUERY);
         log.trace("Параметры запроса: email = {}, login = {}, username = {}, birthday = {}, user_id = {}",
@@ -98,7 +98,8 @@ public class DbUserStorage implements UserStorage {
                 "SELECT * FROM users WHERE user_id = ?";
 
         try {
-            log.debug("Выполнение запроса на получение пользователя с id = {}. Запрос: {}", userId, GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY);
+            log.debug("Выполнение запроса на получение пользователя с id = {}. Запрос: {}",
+                    userId, GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY);
             User user = jdbcTemplate.queryForObject(
                     GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY,
                     new UserRowMapper(),
@@ -164,11 +165,11 @@ public class DbUserStorage implements UserStorage {
     @Override
     public List<User> getUserFriends(long userId) {
         final String GET_FRIENDS_QUERY = """
-            SELECT u.user_id, u.email, u.login, u.username, u.birthday
-            FROM friendship f
-            JOIN users u ON f.friend_id = u.user_id
-            WHERE f.user_id = ?
-            """;
+                SELECT u.user_id, u.email, u.login, u.username, u.birthday
+                FROM friendship f
+                JOIN users u ON f.friend_id = u.user_id
+                WHERE f.user_id = ?
+                """;
 
         log.debug("Начало выполнения запроса на получение списка друзей пользователя с id = {}. Запрос: {}", userId, GET_FRIENDS_QUERY);
 
@@ -186,12 +187,12 @@ public class DbUserStorage implements UserStorage {
     @Override
     public List<User> getCommonFriends(long userId, long friendId) {
         String sql = """
-            SELECT u.*
-            FROM friendship f1
-            JOIN friendship f2 ON f1.friend_id = f2.friend_id
-            JOIN users u ON f1.friend_id = u.user_id
-            WHERE f1.user_id = ? AND f2.user_id = ?
-            """;
+                SELECT u.*
+                FROM friendship f1
+                JOIN friendship f2 ON f1.friend_id = f2.friend_id
+                JOIN users u ON f1.friend_id = u.user_id
+                WHERE f1.user_id = ? AND f2.user_id = ?
+                """;
 
         log.debug("Начало выполнения запроса на получение общих друзей пользователей с id = {} и id = {}. Запрос: {}", userId, friendId, sql);
 
@@ -206,4 +207,9 @@ public class DbUserStorage implements UserStorage {
         return commonFriends;
     }
 
+    @Override
+    public void deleteUserById(long userId) {
+        final String sql = "DELETE FROM users WHERE user_id = ?";
+        jdbcTemplate.update(sql, userId);
+    }
 }

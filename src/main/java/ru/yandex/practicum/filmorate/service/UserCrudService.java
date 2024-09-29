@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import ru.yandex.practicum.filmorate.entity.User;
 import ru.yandex.practicum.filmorate.entity.Marker;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.repository.UserStorage;
 import ru.yandex.practicum.filmorate.service.util.UserValidator;
 
@@ -39,5 +40,18 @@ public class UserCrudService {
         log.info("(NEW) Получен запрос на обновления данных о пользователе '{}'.", userId);
         userValidator.checkUserOnExist(userId);
         return userStorage.updateUser(user);
+    }
+
+    public User getUserById(long userId) {
+        log.info("(NEW) Получен новый запрос на получение пользователя с ID = {}.", userId);
+        return userStorage.getUserById(userId).orElseThrow(
+                () -> new NotFoundException("Пользователь не найден. Id = " + userId)
+        );
+    }
+
+    public void deleteUserById(long userId) {
+        log.info("(NEW) Получен запрос на удаление пользователя с id '{}'.", userId);
+        userValidator.checkUserOnExist(userId);
+        userStorage.deleteUserById(userId);
     }
 }
