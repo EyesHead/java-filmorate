@@ -7,6 +7,10 @@ spring:
   sql:
     init:
       mode: always
+  h2:
+    console:
+      enabled: true
+      path: /h2
 
 logging:
   level:

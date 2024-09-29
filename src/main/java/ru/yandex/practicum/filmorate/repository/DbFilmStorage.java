@@ -389,19 +389,19 @@ public class DbFilmStorage implements FilmStorage {
         Map<Long, Set<Genre>> filmGenresMap = getAllFilmIdsWithGenres();
 
         String sql = """
-        SELECT f.*, mpa.*, COUNT(uf.user_id) AS likes_count
-        FROM films AS f
-        LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id
-        LEFT JOIN users_films_like AS uf ON f.film_id = uf.film_id
-        WHERE f.film_id IN (
-            SELECT l1.film_id
-            FROM users_films_like AS l1
-            JOIN users_films_like AS l2 ON l1.film_id = l2.film_id
-            WHERE l1.user_id = ? AND l2.user_id = ?
-        )
-        GROUP BY f.film_id
-        ORDER BY likes_count DESC
-    """;
+                    SELECT f.*, mpa.*, COUNT(uf.user_id) AS likes_count
+                    FROM films AS f
+                    LEFT JOIN mpa ON mpa.mpa_id = f.mpa_id
+                    LEFT JOIN users_films_like AS uf ON f.film_id = uf.film_id
+                    WHERE f.film_id IN (
+                        SELECT l1.film_id
+                        FROM users_films_like AS l1
+                        JOIN users_films_like AS l2 ON l1.film_id = l2.film_id
+                        WHERE l1.user_id = ? AND l2.user_id = ?
+                    )
+                    GROUP BY f.film_id
+                    ORDER BY likes_count DESC
+                """;
 
         log.debug("Начало выполнения запроса на получение общих фильмов пользователей с id = {} и id = {}. Запрос: {}",
                 userId, friendId, sql);
@@ -416,5 +416,23 @@ public class DbFilmStorage implements FilmStorage {
         }
 
         return commonFilms;
+    }
+
+    public List<Film> getListOfFilmsById(List<Long> filmIds) {
+        if (filmIds.isEmpty()) {
+            log.info("Возвращен пустой список");
+            return Collections.emptyList();
+        }
+        Map<Long, Set<Genre>> filmGenresMap = getAllFilmIdsWithGenres();
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        final String GET_LIST_OF_FILMS_BY_ID_QUERY = String.format("""
+                SELECT *
+                FROM films
+                LEFT JOIN mpa ON mpa.mpa_id = films.mpa_id
+                LEFT JOIN films_genres ON films.film_id = films_genres.film_id
+                WHERE films.film_id IN (%s)
+                """, inSql);
+        log.info("Список фильмов получен");
+        return jdbcTemplate.query(GET_LIST_OF_FILMS_BY_ID_QUERY, new FilmGenresRowMapper(filmGenresMap), filmIds.toArray());
     }
 }
