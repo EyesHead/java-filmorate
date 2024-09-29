@@ -18,10 +18,11 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class DbReviewStorage {
+public class DbReviewStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
     private final ReviewRowMapper reviewRowMapper;
 
+    @Override
     public Review addReview(Review review) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("reviews")
                 .usingGeneratedKeyColumns("id");
@@ -36,6 +37,7 @@ public class DbReviewStorage {
         return review;
     }
 
+    @Override
     public void updateReview(Review review) {
         final String UPDATE_REVIEW_QUERY = """
                 UPDATE reviews SET is_positive = ?, content = ?
@@ -44,6 +46,7 @@ public class DbReviewStorage {
         jdbcTemplate.update(UPDATE_REVIEW_QUERY, review.getIsPositive(), review.getContent(), review.getUserId(), review.getFilmId());
     }
 
+    @Override
     public void removeReview(long reviewId) {
         final String REMOVE_REVIEW_QUERY = """
                 DELETE FROM reviews WHERE id = ?;
@@ -51,6 +54,7 @@ public class DbReviewStorage {
         jdbcTemplate.update(REMOVE_REVIEW_QUERY, reviewId);
     }
 
+    @Override
     public Optional<Review> getReviewById(long reviewId) {
         final String GET_REVIEW_BY_ID_QUERY = """
                 SELECT *
@@ -66,6 +70,7 @@ public class DbReviewStorage {
         }
     }
 
+    @Override
     public List<Review> getAllReviews(int amount) {
         final String GET_ALL_REVIEWS = """
                 SELECT *
@@ -79,6 +84,7 @@ public class DbReviewStorage {
         return jdbcTemplate.query(GET_ALL_REVIEWS, reviewRowMapper, amount);
     }
 
+    @Override
     public List<Review> getReviewsByFilmId(long filmId, int amount) {
         final String GET_REVIEWS_BY_FILM_ID = """
                 SELECT *
@@ -93,6 +99,7 @@ public class DbReviewStorage {
         return jdbcTemplate.query(GET_REVIEWS_BY_FILM_ID, reviewRowMapper, filmId, amount);
     }
 
+    @Override
     public void addLikeDislike(long reviewId, long userId, int likeStatus) {
         final String ADD_REVIEW_LIKE_QUERY = """
                 INSERT INTO reviews_likes (review_id, user_id, liked)
@@ -109,6 +116,7 @@ public class DbReviewStorage {
         }
     }
 
+    @Override
     public void removeLikeDislike(long reviewId, long userId) {
         final String REMOVE_REVIEW_LIKE_QUERY = """
                 DELETE FROM reviews_likes
