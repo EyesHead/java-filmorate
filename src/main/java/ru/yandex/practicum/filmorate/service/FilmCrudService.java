@@ -61,16 +61,16 @@ public class FilmCrudService {
     }
 
     public List<Film> getSortedFilmsByDirector(long directorId, String sortBy) throws InvalidDataRequestException {
+        log.info("(NEW) Получен запрос на получение фильмов с режиссёром '{}', отсортированных по параметру '{}'",
+                directorId, sortBy);
         directorValidator.checkDirectorOnExists(directorId);
 
-        if (sortBy.equals("year")) {
-            return filmRepo.getSortedFilmsByDirectorAndReleaseYear(directorId);
-        } else if (sortBy.equals("likes")) {
-            return filmRepo.getSortedFilmsByDirectorAndLikes(directorId);
-        } else {
-            throw new InvalidDataRequestException(String
+        return switch (sortBy) {
+            case "year" -> filmRepo.getSortedFilmsByDirectorAndReleaseYear(directorId);
+            case "likes" -> filmRepo.getSortedFilmsByDirectorAndLikes(directorId);
+            default -> throw new InvalidDataRequestException(String
                     .format("Сортировка по параметрам 'режиссёр' и '%s' не предусмотрена", sortBy));
-        }
+        };
     }
 
     public void deleteFilmById(long filmId) {
