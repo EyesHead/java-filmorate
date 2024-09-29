@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS friendship (
 
 CREATE TABLE IF NOT EXISTS reviews (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL REFERENCES users (user_id),
-    film_id BIGINT NOT NULL REFERENCES films (film_id),
+    user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
     is_positive BOOL,
     content VARCHAR(200)
 );

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.entity.Review;
 import ru.yandex.practicum.filmorate.exception.InvalidDataRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.repository.DbReviewStorage;
+import ru.yandex.practicum.filmorate.repository.ReviewStorage;
 import ru.yandex.practicum.filmorate.service.util.FilmValidator;
 import ru.yandex.practicum.filmorate.service.util.ReviewValidator;
 import ru.yandex.practicum.filmorate.service.util.UserValidator;
@@ -19,7 +19,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class FilmReviewService {
-    private final DbReviewStorage reviewStorage;
+    private final ReviewStorage reviewStorage;
     private final UserValidator userValidator;
     private final FilmValidator filmValidator;
     private final ReviewValidator reviewValidator;
