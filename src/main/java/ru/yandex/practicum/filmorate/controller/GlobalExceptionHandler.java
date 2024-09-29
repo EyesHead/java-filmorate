@@ -63,11 +63,4 @@ public class GlobalExceptionHandler {
         log.error("Ошибка доступа к данным: {}", dae.getMessage());
         return new ErrorMessage("Ошибка доступа к данным.");
     }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorMessage handleUnresolvedException(Throwable throwable) {
-        log.error("Сообщение из ошибки = {}", throwable.getMessage());
-        return new ErrorMessage("Во время выполнения запроса возникла непредвиденная ошибка");
-    }
 }

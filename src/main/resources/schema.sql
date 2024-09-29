@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS mpa, users, films, genres, films_genres, users_films_like, friendship;
+DROP TABLE IF EXISTS users, films, directors, mpa, genres, films_genres, users_films_like, films_directors, friendship;
 
 -- Таблица mpa
 CREATE TABLE IF NOT EXISTS mpa (
@@ -51,4 +51,15 @@ CREATE TABLE IF NOT EXISTS friendship (
     user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     friend_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, friend_id)
+);
+
+CREATE TABLE IF NOT EXISTS directors (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS films_directors (
+    film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    director_id BIGINT NOT NULL REFERENCES directors (id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id, director_id)
 );

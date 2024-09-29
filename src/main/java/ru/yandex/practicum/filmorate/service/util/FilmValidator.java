@@ -22,9 +22,11 @@ public class FilmValidator {
 
 
     public void checkFilmMpaRatingOnExist(Mpa mpa) throws InvalidDataRequestException {
-        if (mpa == null) return;
-
-        log.debug("Проверка MPA рейтинга на существование '{}' в БД.", mpa.getId());
+        if (mpa == null) {
+            log.debug("У проверяемого фильма нет mpa рейтинга. Проверка закончена");
+            return;
+        }
+        log.debug("Начало проверки MPA рейтинга на существование '{}' в БД.", mpa.getId());
 
         filmRepo.getMpa(mpa.getId()).orElseThrow(
                 () -> new InvalidDataRequestException("MPA не найден. Mpa ID = " + mpa.getId())
@@ -34,24 +36,21 @@ public class FilmValidator {
     }
 
     public void checkFilmGenresOnExist(Set<Genre> filmGenres) throws InvalidDataRequestException {
-        log.debug("Проверка на существование жанров в БД. {}", filmGenres);
+        log.debug("Начало проверки жанров на существование в БД. {}", filmGenres);
 
         if (!CollectionUtils.isNotEmpty(filmGenres)) {
-            log.debug("Фильм не имеет жанров.");
+            log.debug("Фильм не имеет жанров. Проверка закончена");
             return;
         }
-
-        List<Genre> allGenres = (List<Genre>) filmRepo.getAllGenres();
         // Создаем набор идентификаторов всех жанров для быстрой проверки наличия
-        List<Long> allGenreIds = allGenres.stream()
+        List<Long> allGenreIds = filmRepo.getAllGenres().stream()
                 .map(Genre::getId)
                 .toList();
-
-        // Проверяем каждый жанр фильма
+        // Проверяем каждый жанр фильма по id с существующими id жанров
         for (Genre requestGenre : filmGenres) {
             if (!allGenreIds.contains(requestGenre.getId())) {
                 throw new InvalidDataRequestException(
-                        String.format("Жанр с ID='%d' не найден в БД", requestGenre.getId()));
+                        String.format("Жанр с ID='%d' не найден в БД.", requestGenre.getId()));
             }
         }
     }

@@ -28,8 +28,6 @@ public interface FilmStorage {
 
     Collection<Long> getUsersIdsWhoLikedFilm(long filmId);
 
-    Set<Genre> getFilmGenres(long filmId);
-
     Collection<Mpa> getAllMpa();
 
     Collection<Genre> getAllGenres();
@@ -39,4 +37,8 @@ public interface FilmStorage {
     Optional<Mpa> getMpa(long mpaId);
 
     List<Film> getCommonFilms(long userId, long friendId);
+
+    List<Film> getSortedFilmsByDirectorAndReleaseYear(long directorId);
+
+    List<Film> getSortedFilmsByDirectorAndLikes(long directorId);
 }
