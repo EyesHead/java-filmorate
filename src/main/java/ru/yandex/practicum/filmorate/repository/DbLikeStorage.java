@@ -35,8 +35,8 @@ public class DbLikeStorage {
                 """, inSql);
         return jdbcTemplate.query(GET_LIKED_FILMS_ID_BY_USER_ID, rs -> {
             Map<Long, ArrayList<Long>> result = new HashMap<>();
-            while(rs.next()) {
-                if(!result.containsKey(rs.getLong("film_id"))) {
+            while (rs.next()) {
+                if (!result.containsKey(rs.getLong("film_id"))) {
                     result.put(rs.getLong("film_id"), new ArrayList<>(Arrays.asList(rs.getLong("user_id"))));
                 } else {
                     result.get(rs.getLong("film_id")).add(rs.getLong("user_id"));
