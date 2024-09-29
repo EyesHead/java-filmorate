@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.entity.Mpa;
 import ru.yandex.practicum.filmorate.entity.Film;
 import ru.yandex.practicum.filmorate.entity.Genre;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.repository.mapper.FilmGenresRowMapper;
 import ru.yandex.practicum.filmorate.repository.mapper.GenreRowMapper;
 import ru.yandex.practicum.filmorate.repository.mapper.MpaRowMapper;
