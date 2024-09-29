@@ -24,7 +24,7 @@ public class FilmRecommendationService {
     private final UserValidator userValidator;
     private final FilmStorage filmStorage;
 
-    private final int AMOUNT_OF_USERS = 1;
+    private final int amountOfUsers = 1;
 
     private List<Long> getAnotherUsersWithSimilarLikes(List<Long> likedFilmsId, Long userId) {
         log.info("Получение списка пользователей с похожими лайками");
@@ -37,7 +37,7 @@ public class FilmRecommendationService {
         return counter.entrySet().stream()
                 .filter(entry -> !entry.getKey().equals(userId))
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(AMOUNT_OF_USERS)
+                .limit(amountOfUsers)
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
