@@ -39,4 +39,6 @@ public interface FilmStorage {
     Optional<Mpa> getMpa(long mpaId);
 
     List<Film> getCommonFilms(long userId, long friendId);
+
+    void deleteFilmById(long filmId);
 }
