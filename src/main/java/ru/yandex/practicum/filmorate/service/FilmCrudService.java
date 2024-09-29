@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.InvalidDataRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.entity.Film;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
+import ru.yandex.practicum.filmorate.service.util.DirectorValidator;
 import ru.yandex.practicum.filmorate.service.util.FilmValidator;
 import ru.yandex.practicum.filmorate.service.util.UserValidator;
 
@@ -19,6 +21,7 @@ public class FilmCrudService {
     private final FilmStorage filmRepo;
     private final FilmValidator filmValidator;
     private final UserValidator userValidator;
+    private final DirectorValidator directorValidator;
 
     public Film getFilmById(long filmId) {
         log.info("(NEW) Получен новый запрос на получение фильма с ID = {}.", filmId);
@@ -55,6 +58,19 @@ public class FilmCrudService {
         userValidator.checkUserOnExist(friendId);
 
         return filmRepo.getCommonFilms(userId, friendId);
+    }
+
+    public List<Film> getSortedFilmsByDirector(long directorId, String sortBy) throws InvalidDataRequestException {
+        directorValidator.checkDirectorOnExists(directorId);
+
+        if (sortBy.equals("year")) {
+            return filmRepo.getSortedFilmsByDirectorAndReleaseYear(directorId);
+        } else if (sortBy.equals("likes")) {
+            return filmRepo.getSortedFilmsByDirectorAndLikes(directorId);
+        } else {
+            throw new InvalidDataRequestException(String
+                    .format("Сортировка по параметрам 'режиссёр' и '%s' не предусмотрена", sortBy));
+        }
     }
 
     public void deleteFilmById(long filmId) {

@@ -38,14 +38,11 @@ public class Film {
 
     Mpa mpa;
 
-    Set<Genre> genres;
+    @Builder.Default
+    Set<Genre> genres = new HashSet<>();
+
+    @Builder.Default
+    Set<Director> directors = new HashSet<>();
 
     List<Long> userIdsWhoLiked;
-
-    public Set<Genre> getGenres() {
-        if (genres == null) {
-            return new HashSet<>();
-        }
-        return genres;
-    }
 }
