@@ -329,11 +329,11 @@ public class DbFilmStorage implements FilmStorage {
     @Override
     public Set<Genre> getFilmGenres(long filmId) {
         final String GET_GENRES_BY_FILM_ID_QUERY = """
-            SELECT g.genre_id, g.name
-            FROM genres g
-            INNER JOIN films_genres fg ON g.genre_id = fg.genre_id
-            WHERE fg.film_id = ?
-            ORDER BY g.genre_id ASC""";
+                SELECT g.genre_id, g.name
+                FROM genres g
+                INNER JOIN films_genres fg ON g.genre_id = fg.genre_id
+                WHERE fg.film_id = ?
+                ORDER BY g.genre_id ASC""";
         log.debug("Получение жанров для фильма с id = {}", filmId);
 
         // Используем LinkedHashSet для сохранения порядка жанров
@@ -435,6 +435,7 @@ public class DbFilmStorage implements FilmStorage {
                 """, inSql);
         log.info("Список фильмов получен");
         return jdbcTemplate.query(GET_LIST_OF_FILMS_BY_ID_QUERY, new FilmGenresRowMapper(filmGenresMap), filmIds.toArray());
+    }
 
     @Override
     public void deleteFilmById(long filmId) {
