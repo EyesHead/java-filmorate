@@ -190,7 +190,7 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
-    public boolean deleteLikeFromFilm(long filmId, long userId) {
+    public void deleteLikeFromFilm(long filmId, long userId) {
         final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM users_films_like WHERE film_id = ? AND user_id = ?";
         log.debug("Удаление лайка от пользователя с ID {} для фильма с ID {}", userId, filmId);
 
@@ -198,7 +198,6 @@ public class DbFilmStorage implements FilmStorage {
         boolean isDeleted = rowsDeleted != 0;
 
         log.info("Лайк для фильма с ID {} от пользователя с ID {} {}", filmId, userId, isDeleted ? "удален" : "не был найден");
-        return isDeleted;
     }
 
     @Override
@@ -344,7 +343,7 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getSortedFilmsByDirectorAndReleaseYear(long directorId) {
+    public List<Film> getSortedByReleaseDateFilmsOfDirector(long directorId) {
     final String GET_SORTED_FILMS_BY_DIRECTOR_QUERY = """
         SELECT f.*, m.mpa_name
         FROM films f
@@ -370,7 +369,7 @@ public class DbFilmStorage implements FilmStorage {
 
 
     @Override
-    public List<Film> getSortedFilmsByDirectorAndLikes(long directorId) {
+    public List<Film> getSortedByLikesFilmsOfDirector(long directorId) {
         final String GET_SORTED_FILMS_BY_DIRECTOR_QUERY = """
             SELECT f.*, m.mpa_name, COUNT(uf.user_id) AS likes_count
             FROM films f

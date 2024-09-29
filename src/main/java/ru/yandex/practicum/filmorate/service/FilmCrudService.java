@@ -66,8 +66,8 @@ public class FilmCrudService {
         directorValidator.checkDirectorOnExists(directorId);
 
         return switch (sortBy) {
-            case "year" -> filmRepo.getSortedFilmsByDirectorAndReleaseYear(directorId);
-            case "likes" -> filmRepo.getSortedFilmsByDirectorAndLikes(directorId);
+            case "year" -> filmRepo.getSortedByReleaseDateFilmsOfDirector(directorId);
+            case "likes" -> filmRepo.getSortedByLikesFilmsOfDirector(directorId);
             default -> throw new InvalidDataRequestException(String
                     .format("Сортировка по параметрам 'режиссёр' и '%s' не предусмотрена", sortBy));
         };
