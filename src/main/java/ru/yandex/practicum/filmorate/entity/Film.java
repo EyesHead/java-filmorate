@@ -7,6 +7,7 @@ import jakarta.validation.constraints.*;
 import ru.yandex.practicum.filmorate.validation.constraints.FilmReleaseDate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,5 +45,6 @@ public class Film {
     @Builder.Default
     Set<Director> directors = new HashSet<>();
 
-    List<Long> userIdsWhoLiked;
+    @Builder.Default
+    List<Long> userIdsWhoLiked = new ArrayList<>();
 }
