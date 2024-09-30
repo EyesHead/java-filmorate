@@ -7,6 +7,7 @@ import jakarta.validation.constraints.*;
 import ru.yandex.practicum.filmorate.validation.constraints.FilmReleaseDate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,14 +39,12 @@ public class Film {
 
     Mpa mpa;
 
-    Set<Genre> genres;
+    @Builder.Default
+    Set<Genre> genres = new HashSet<>();
 
-    List<Long> userIdsWhoLiked;
+    @Builder.Default
+    Set<Director> directors = new HashSet<>();
 
-    public Set<Genre> getGenres() {
-        if (genres == null) {
-            return new HashSet<>();
-        }
-        return genres;
-    }
+    @Builder.Default
+    List<Long> userIdsWhoLiked = new ArrayList<>();
 }
