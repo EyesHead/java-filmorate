@@ -52,12 +52,10 @@ public class FilmLikeService {
 
     public Collection<Film> filmsSearch(String query, String by) {
         String text = query.toLowerCase();
-        if (by.equals("title")) {
-            return filmStorage.filmsSearch(text, null);
-        } else if (by.equals("director")) {
-            return filmStorage.filmsSearch(null, text);
-        } else {
-            return filmStorage.filmsSearch(text, text);
-        }
+        return switch (text) {
+            case "title" -> filmStorage.filmsSearch(text, null);
+            case "director" -> filmStorage.filmsSearch(null, text);
+            default -> filmStorage.filmsSearch(text, text);
+        };
     }
 }
