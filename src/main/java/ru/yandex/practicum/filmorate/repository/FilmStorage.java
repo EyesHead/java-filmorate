@@ -35,11 +35,11 @@ public interface FilmStorage {
     Optional<Genre> getGenre(long genreId);
 
     Optional<Mpa> getMpa(long mpaId);
-  
+
     List<Film> getListOfFilmsById(List<Long> filmIds);
 
     void deleteFilmById(long filmId);
- 
+
     List<Film> getSortedByReleaseDateFilmsOfDirector(long directorId);
 
     List<Film> getSortedByLikesFilmsOfDirector(long directorId);
