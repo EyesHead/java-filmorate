@@ -57,4 +57,15 @@ public class FilmLikeService {
             return filmStorage.getMostLikedFilmsByGenreOrYear(count, genreId, year);
         }
     }
+
+    public Collection<Film> filmsSearch(String query, String by) {
+        String text = query.toLowerCase();
+        if (by.equals("title")) {
+            return filmStorage.filmsSearch(text, null);
+        } else if (by.equals("director")) {
+            return filmStorage.filmsSearch(null, text);
+        } else {
+            return filmStorage.filmsSearch(text, text);
+        }
+    }
 }
