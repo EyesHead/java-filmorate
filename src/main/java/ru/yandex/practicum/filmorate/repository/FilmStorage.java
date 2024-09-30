@@ -18,7 +18,7 @@ public interface FilmStorage {
 
     void saveLikeToFilm(long filmId, long userId);
 
-    boolean deleteLikeFromFilm(long filmId, long userId);
+    void deleteLikeFromFilm(long filmId, long userId);
 
     Collection<Film> getMostLikedFilms(int limit);
 
@@ -28,8 +28,6 @@ public interface FilmStorage {
 
     Collection<Long> getUsersIdsWhoLikedFilm(long filmId);
 
-    Set<Genre> getFilmGenres(long filmId);
-
     Collection<Mpa> getAllMpa();
 
     Collection<Genre> getAllGenres();
@@ -38,7 +36,11 @@ public interface FilmStorage {
 
     Optional<Mpa> getMpa(long mpaId);
 
-    List<Film> getCommonFilms(long userId, long friendId);
-
     void deleteFilmById(long filmId);
+
+    List<Film> getSortedByReleaseDateFilmsOfDirector(long directorId);
+
+    List<Film> getSortedByLikesFilmsOfDirector(long directorId);
+
+    List<Film> getCommonFilms(long userId, long friendId);
 }
