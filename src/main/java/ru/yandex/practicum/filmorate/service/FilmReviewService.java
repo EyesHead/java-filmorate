@@ -51,8 +51,7 @@ public class FilmReviewService {
         log.info("Удаление отзыва с ID {}", id);
         Review reviewForDelete = getReview(id);
         long userId = reviewForDelete.getUserId();
-        long eventId = reviewForDelete.getReviewId();
-        eventLogger.logEvent(userId, REVIEW, REMOVE, eventId);
+        eventLogger.logEvent(userId, REVIEW, REMOVE, id);
         reviewStorage.removeReview(id);
     }
 
