@@ -165,7 +165,7 @@ public class DbUserStorage implements UserStorage {
     @Override
     public List<User> getUserFriends(long userId) {
         final String GET_FRIENDS_QUERY = """
-                SELECT u.user_id, u.email, u.login, u.username, u.birthday
+                SELECT u.*
                 FROM friendship f
                 JOIN users u ON f.friend_id = u.user_id
                 WHERE f.user_id = ?

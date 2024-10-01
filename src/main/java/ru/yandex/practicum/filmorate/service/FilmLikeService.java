@@ -4,11 +4,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.entity.Film;
+import ru.yandex.practicum.filmorate.repository.EventLogger;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
-import ru.yandex.practicum.filmorate.service.util.FilmValidator;
-import ru.yandex.practicum.filmorate.service.util.UserValidator;
+import ru.yandex.practicum.filmorate.service.validators.FilmValidator;
+import ru.yandex.practicum.filmorate.service.validators.UserValidator;
 
 import java.util.*;
+
+import static ru.yandex.practicum.filmorate.entity.EventOperation.ADD;
+import static ru.yandex.practicum.filmorate.entity.EventOperation.REMOVE;
+import static ru.yandex.practicum.filmorate.entity.EventType.LIKE;
 
 @Service
 @Slf4j
@@ -17,6 +22,7 @@ public class FilmLikeService {
     private final FilmStorage filmStorage;
     private final FilmValidator filmValidator;
     private final UserValidator userValidator;
+    private final EventLogger eventLogger;
 
     public void addLikeToFilm(long filmId, long userId) {
         log.info("(NEW) Получен запрос от пользователя на добавление лайка к фильму. userId='{}',filmId='{}'",
@@ -28,6 +34,7 @@ public class FilmLikeService {
         filmValidator.checkIsUserAlreadyLikedFilm(filmId, userId);
 
         filmStorage.saveLikeToFilm(filmId, userId);
+        eventLogger.logEvent(userId, LIKE, ADD, filmId);
     }
 
     public void removeLikeFromFilm(long filmId, long userId) {
@@ -37,6 +44,7 @@ public class FilmLikeService {
         userValidator.checkUserOnExist(userId);
 
         filmStorage.deleteLikeFromFilm(filmId, userId);
+        eventLogger.logEvent(userId, LIKE, REMOVE, filmId);
     }
 
     public Collection<Film> getMostLikedFilms(Integer count, Integer genreId, Integer year) {

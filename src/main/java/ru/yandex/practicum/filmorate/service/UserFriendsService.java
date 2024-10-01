@@ -3,9 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import static ru.yandex.practicum.filmorate.entity.EventOperation.*;
+import static ru.yandex.practicum.filmorate.entity.EventType.*;
 import ru.yandex.practicum.filmorate.entity.User;
+import ru.yandex.practicum.filmorate.repository.EventLogger;
 import ru.yandex.practicum.filmorate.repository.UserStorage;
-import ru.yandex.practicum.filmorate.service.util.UserValidator;
+import ru.yandex.practicum.filmorate.service.validators.UserValidator;
 
 import java.util.List;
 
@@ -14,6 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserFriendsService {
     private final UserStorage userStorage;
+    private final EventLogger eventLogger;
+
     private final UserValidator userValidator;
 
     public void addFriend(long userId, long friendId) {
@@ -23,6 +28,7 @@ public class UserFriendsService {
         userValidator.checkUserOnExist(friendId);
 
         userStorage.saveFriendToUser(userId, friendId);
+        eventLogger.logEvent(userId, FRIEND, ADD, friendId);
     }
 
     public void removeFriend(long userId, long friendId) {
@@ -33,6 +39,7 @@ public class UserFriendsService {
         userValidator.checkUserOnExist(friendId);
 
         userStorage.removeFriend(userId, friendId);
+        eventLogger.logEvent(userId, FRIEND, REMOVE, friendId);
     }
 
     public List<User> getUserFriends(long userId) {
