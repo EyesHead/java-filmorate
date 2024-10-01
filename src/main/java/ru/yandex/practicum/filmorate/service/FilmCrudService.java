@@ -7,9 +7,9 @@ import ru.yandex.practicum.filmorate.exception.InvalidDataRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.entity.Film;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
-import ru.yandex.practicum.filmorate.service.util.DirectorValidator;
-import ru.yandex.practicum.filmorate.service.util.FilmValidator;
-import ru.yandex.practicum.filmorate.service.util.UserValidator;
+import ru.yandex.practicum.filmorate.service.validators.DirectorValidator;
+import ru.yandex.practicum.filmorate.service.validators.FilmValidator;
+import ru.yandex.practicum.filmorate.service.validators.UserValidator;
 
 import java.util.Collection;
 import java.util.List;
