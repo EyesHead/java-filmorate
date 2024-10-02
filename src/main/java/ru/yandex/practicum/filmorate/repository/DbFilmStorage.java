@@ -342,6 +342,27 @@ public class DbFilmStorage implements FilmStorage {
         return commonFilms;
     }
 
+
+    public List<Film> getListOfFilmsById(List<Long> filmIds) {
+        if (filmIds.isEmpty()) {
+            log.info("Возвращен пустой список");
+            return Collections.emptyList();
+        }
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        final String GET_LIST_OF_FILMS_BY_ID_QUERY = String.format("""
+                SELECT *
+                FROM films
+                LEFT JOIN mpa ON mpa.mpa_id = films.mpa_id
+                LEFT JOIN films_genres ON films.film_id = films_genres.film_id
+                WHERE films.film_id IN (%s)
+                """, inSql);
+        log.info("Список фильмов получен");
+        List<Film> extractingFilms = jdbcTemplate.query(GET_LIST_OF_FILMS_BY_ID_QUERY, new FilmRowMapper(), filmIds.toArray());
+        assignGenresForFilms(extractingFilms);
+        assignDirectorsForFilms(extractingFilms);
+        return extractingFilms;
+    }
+
     @Override
     public List<Film> getSortedByReleaseDateFilmsOfDirector(long directorId) {
         final String GET_SORTED_FILMS_BY_DIRECTOR_QUERY = """

@@ -36,6 +36,8 @@ public interface FilmStorage {
 
     Optional<Mpa> getMpa(long mpaId);
 
+    List<Film> getListOfFilmsById(List<Long> filmIds);
+
     void deleteFilmById(long filmId);
 
     List<Film> getSortedByReleaseDateFilmsOfDirector(long directorId);
