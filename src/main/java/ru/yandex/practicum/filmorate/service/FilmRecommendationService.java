@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.entity.Film;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.LikeStorage;
-import ru.yandex.practicum.filmorate.service.util.UserValidator;
+import ru.yandex.practicum.filmorate.service.validators.UserValidator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,8 +23,6 @@ public class FilmRecommendationService {
     private final UserValidator userValidator;
     private final FilmStorage filmStorage;
 
-    private final int amountOfUsers = 1;
-
     private List<Long> getAnotherUsersWithSimilarLikes(List<Long> likedFilmsId, Long userId) {
         log.info("Получение списка пользователей с похожими лайками");
         Map<Long, ArrayList<Long>> mapOfFilmsToUserLists = likeStorage.getMapOfLikesByPrimaryKey(likedFilmsId,
@@ -34,6 +32,7 @@ public class FilmRecommendationService {
             listOfSimilarLikes.addAll(filmLikes.getValue());
         }
         Map<Long, Long> counter = listOfSimilarLikes.stream().collect(Collectors.groupingBy(e -> e, Collectors.counting()));
+        int amountOfUsers = 1;
         return counter.entrySet().stream()
                 .filter(entry -> !entry.getKey().equals(userId))
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
