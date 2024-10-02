@@ -4,23 +4,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.entity.Film;
-import ru.yandex.practicum.filmorate.repository.DbLikeStorage;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
+import ru.yandex.practicum.filmorate.repository.LikeStorage;
 import ru.yandex.practicum.filmorate.service.util.UserValidator;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class FilmRecommendationService {
-    private final DbLikeStorage likeStorage;
+    private final LikeStorage likeStorage;
     private final UserValidator userValidator;
     private final FilmStorage filmStorage;
 
@@ -28,7 +27,8 @@ public class FilmRecommendationService {
 
     private List<Long> getAnotherUsersWithSimilarLikes(List<Long> likedFilmsId, Long userId) {
         log.info("Получение списка пользователей с похожими лайками");
-        Map<Long, ArrayList<Long>> mapOfFilmsToUserLists = likeStorage.getUsersIdThatLikedFilms(likedFilmsId);
+        Map<Long, ArrayList<Long>> mapOfFilmsToUserLists = likeStorage.getMapOfLikesByPrimaryKey(likedFilmsId,
+                "film_id");
         List<Long> listOfSimilarLikes = new ArrayList<>();
         for (Map.Entry<Long, ArrayList<Long>> filmLikes : mapOfFilmsToUserLists.entrySet()) {
             listOfSimilarLikes.addAll(filmLikes.getValue());
@@ -44,14 +44,14 @@ public class FilmRecommendationService {
 
     private List<Long> getListOfFilmsToRecommend(Long userId) {
         log.info("Получение списка ID фильмов для рекомендации пользователю {}", userId);
-        List<Long> likedFilmsId = likeStorage.getLikedFilmsIdByUserId(userId);
+        List<Long> likedFilmsId = likeStorage.getMapOfLikesByPrimaryKey(Collections.singletonList(userId),
+                "user_id").get(userId);
         List<Long> similarUsers = getAnotherUsersWithSimilarLikes(likedFilmsId, userId);
         log.info("Пользователи с похожими лайками {}", similarUsers);
-        Set<Long> rawRecommendedSet = new HashSet<>();
-        for (Long user : similarUsers) {
-            rawRecommendedSet.addAll(likeStorage.getLikedFilmsIdByUserId(user));
-        }
-        return rawRecommendedSet.stream().filter(filmId -> !likedFilmsId.contains(filmId)).collect(Collectors.toList());
+        Map<Long, ArrayList<Long>> similarUsersLikes = likeStorage.getMapOfLikesByPrimaryKey(similarUsers,
+                "user_id");
+        return similarUsersLikes.values().stream().flatMap(List::stream).collect(Collectors.toSet()).stream()
+                .filter(filmId -> !likedFilmsId.contains(filmId)).collect(Collectors.toList());
     }
 
     public List<Film> getRecommendedFilms(Long userId) {
