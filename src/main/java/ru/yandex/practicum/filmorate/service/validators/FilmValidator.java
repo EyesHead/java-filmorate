@@ -6,7 +6,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.entity.Genre;
 import ru.yandex.practicum.filmorate.entity.Mpa;
-import ru.yandex.practicum.filmorate.exception.DuplicatedDataException;
 import ru.yandex.practicum.filmorate.exception.InvalidDataRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
@@ -61,11 +60,5 @@ public class FilmValidator {
             throw new NotFoundException("Фильм не найден. ID = " + filmId);
         }
         log.debug("Фильм существует. Проверка завершена.");
-    }
-
-    public void checkIsUserAlreadyLikedFilm(long filmId, long userId) throws DuplicatedDataException {
-        if (filmRepo.getUsersIdsWhoLikedFilm(filmId).contains(userId)) {
-            throw new DuplicatedDataException("User with id = " + userId + " already liked film " + filmId);
-        }
     }
 }

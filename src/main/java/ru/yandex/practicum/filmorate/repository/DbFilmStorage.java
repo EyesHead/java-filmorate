@@ -156,8 +156,8 @@ public class DbFilmStorage implements FilmStorage {
                 """;
         log.debug("Получение самых популярных фильмов с лимитом '{}' по жанру id = '{}' и '{}' году", limit, genreId, year);
 
-        List<Film> films = jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY,
-                new FilmRowMapper(), genreId, year, limit);
+        LinkedHashSet<Film> films = new LinkedHashSet<>(jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY,
+                new FilmRowMapper(), genreId, year, limit));
 
         assignGenresForFilms(films);
         assignDirectorsForFilms(films);
@@ -182,8 +182,8 @@ public class DbFilmStorage implements FilmStorage {
         log.debug("Получение самых популярных фильмов с лимитом {} по жанру '{}', либо году '{}'", limit, genreId, year);
 
 
-        List<Film> films = jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY,
-                new FilmRowMapper(), genreId, year, limit);
+        LinkedHashSet<Film> films = new LinkedHashSet<>(jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY,
+                new FilmRowMapper(), genreId, year, limit));
 
         assignGenresForFilms(films);
         assignDirectorsForFilms(films);
@@ -206,7 +206,7 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public void saveLikeToFilm(long filmId, long userId) {
-        final String INSERT_LIKE_TO_FILM_QUERY = "INSERT INTO users_films_like (user_id, film_id) VALUES (?, ?)";
+        final String INSERT_LIKE_TO_FILM_QUERY = "MERGE INTO users_films_like (user_id, film_id) VALUES (?, ?)";
         log.debug("Добавление лайка пользователя с id = {} к фильму с id = {}", userId, filmId);
 
         jdbcTemplate.update(INSERT_LIKE_TO_FILM_QUERY, userId, filmId);
@@ -429,7 +429,7 @@ public class DbFilmStorage implements FilmStorage {
      *
      * @param films множество фильмов, для которых нужно установить соответствующие жанры
      */
-    private void assignGenresForFilms(List<Film> films) {
+    private void assignGenresForFilms(Collection<Film> films) {
         List<Long> filmIds = films.stream()
                 .map(Film::getId)
                 .toList();
@@ -590,7 +590,7 @@ public class DbFilmStorage implements FilmStorage {
 
         log.debug("Получение самых популярных фильмов с подстрокой: {} {}", title, director);
 
-        List<Film> films = jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY, new FilmRowMapper(), director, title);
+        LinkedHashSet<Film> films = new LinkedHashSet<>(jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY, new FilmRowMapper(), director, title));
         assignGenresForFilms(films);
         assignDirectorsForFilms(films);
 
