@@ -34,8 +34,7 @@ public class FilmReviewController {
 
     @PutMapping()
     public Review updateReview(@RequestBody @Validated(Marker.OnUpdate.class) Review review) {
-        filmReviewService.updateReview(review);
-        return review;
+        return filmReviewService.updateReview(review);
     }
 
     @DeleteMapping("/{reviewId}")

@@ -41,9 +41,9 @@ public class DbReviewStorage implements ReviewStorage {
     public void updateReview(Review review) {
         final String UPDATE_REVIEW_QUERY = """
                 UPDATE reviews SET is_positive = ?, content = ?
-                WHERE user_id = ? AND film_id = ?;
+                WHERE id = ?;
                 """;
-        jdbcTemplate.update(UPDATE_REVIEW_QUERY, review.getIsPositive(), review.getContent(), review.getUserId(), review.getFilmId());
+        jdbcTemplate.update(UPDATE_REVIEW_QUERY, review.getIsPositive(), review.getContent(), review.getReviewId());
     }
 
     @Override
@@ -78,7 +78,6 @@ public class DbReviewStorage implements ReviewStorage {
                 LEFT JOIN (SELECT review_id, (2 * SUM(liked)) - COUNT(user_id) AS useful FROM reviews_likes
                 GROUP BY review_id) AS review_use
                 ON review_use.review_id = reviews.id
-                ORDER BY review_use.useful DESC
                 LIMIT ?;
                 """;
         return jdbcTemplate.query(GET_ALL_REVIEWS, reviewRowMapper, amount);

@@ -362,11 +362,11 @@ public class DbFilmStorage implements FilmStorage {
                 SELECT *
                 FROM films
                 LEFT JOIN mpa ON mpa.mpa_id = films.mpa_id
-                LEFT JOIN films_genres ON films.film_id = films_genres.film_id
                 WHERE films.film_id IN (%s)
                 """, inSql);
         log.info("Список фильмов получен");
         List<Film> extractingFilms = jdbcTemplate.query(GET_LIST_OF_FILMS_BY_ID_QUERY, new FilmRowMapper(), filmIds.toArray());
+        log.info("Фильмы: {}", extractingFilms);
         assignGenresForFilms(extractingFilms);
         assignDirectorsForFilms(extractingFilms);
         return extractingFilms;
@@ -475,7 +475,7 @@ public class DbFilmStorage implements FilmStorage {
                 SELECT fd.film_id, d.id AS director_id, d.name
                 FROM films_directors fd
                 JOIN directors d ON fd.director_id = d.id
-                WHERE fd.film_id IN (%s)""",inSql);
+                WHERE fd.film_id IN (%s)""", inSql);
 
         // Выполняем запрос, передавая список filmIds как параметры вместо ?
         Map<Long, Set<Director>> filmDirectorsMap = jdbcTemplate.query(sqlQuery, filmIds.toArray(), new FilmDirectorsRowMapper());

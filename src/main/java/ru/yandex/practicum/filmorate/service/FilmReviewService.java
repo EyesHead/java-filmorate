@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.service.validators.UserValidator;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Comparator.comparing;
 import static ru.yandex.practicum.filmorate.entity.EventOperation.*;
 import static ru.yandex.practicum.filmorate.entity.EventType.*;
 
@@ -39,12 +40,14 @@ public class FilmReviewService {
         return savedReview;
     }
 
-    public void updateReview(Review review) {
+    public Review updateReview(Review review) {
         reviewValidator.checkReviewOnExistence(review.getReviewId());
         reviewStorage.updateReview(review);
-        long userId = review.getUserId();
-        long entityId = review.getReviewId();
+        Review updatedReview = reviewStorage.getReviewById(review.getReviewId()).get();
+        long userId = updatedReview.getUserId();
+        long entityId = updatedReview.getReviewId();
         eventLogger.logEvent(userId, REVIEW, UPDATE, entityId);
+        return updatedReview;
     }
 
     public void deleteReview(long id) {
@@ -70,7 +73,7 @@ public class FilmReviewService {
                 throw new InvalidDataRequestException("Не удалось получить id фильма");
             }
         } else {
-            return reviewStorage.getAllReviews(amount);
+            return reviewStorage.getAllReviews(amount).stream().sorted(comparing(Review::getUseful).reversed()).toList();
         }
     }
 
