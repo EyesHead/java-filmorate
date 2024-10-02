@@ -342,16 +342,37 @@ public class DbFilmStorage implements FilmStorage {
         return commonFilms;
     }
 
+
+    public List<Film> getListOfFilmsById(List<Long> filmIds) {
+        if (filmIds.isEmpty()) {
+            log.info("Возвращен пустой список");
+            return Collections.emptyList();
+        }
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        final String GET_LIST_OF_FILMS_BY_ID_QUERY = String.format("""
+                SELECT *
+                FROM films
+                LEFT JOIN mpa ON mpa.mpa_id = films.mpa_id
+                LEFT JOIN films_genres ON films.film_id = films_genres.film_id
+                WHERE films.film_id IN (%s)
+                """, inSql);
+        log.info("Список фильмов получен");
+        List<Film> extractingFilms = jdbcTemplate.query(GET_LIST_OF_FILMS_BY_ID_QUERY, new FilmRowMapper(), filmIds.toArray());
+        assignGenresForFilms(extractingFilms);
+        assignDirectorsForFilms(extractingFilms);
+        return extractingFilms;
+    }
+
     @Override
     public List<Film> getSortedByReleaseDateFilmsOfDirector(long directorId) {
-    final String GET_SORTED_FILMS_BY_DIRECTOR_QUERY = """
-        SELECT f.*, m.mpa_name
-        FROM films f
-        LEFT JOIN mpa m ON f.mpa_id = m.mpa_id
-        LEFT JOIN films_directors fd ON f.film_id = fd.film_id
-        WHERE fd.director_id = ?
-        ORDER BY EXTRACT(YEAR FROM CAST(f.release_date AS date)) ASC
-        """;
+        final String GET_SORTED_FILMS_BY_DIRECTOR_QUERY = """
+                SELECT f.*, m.mpa_name
+                FROM films f
+                LEFT JOIN mpa m ON f.mpa_id = m.mpa_id
+                LEFT JOIN films_directors fd ON f.film_id = fd.film_id
+                WHERE fd.director_id = ?
+                ORDER BY EXTRACT(YEAR FROM CAST(f.release_date AS date)) ASC
+                """;
 
         log.debug("Получение фильмов режиссёра с id = '{}' отсортированных по году выпуска", directorId);
 
@@ -367,19 +388,18 @@ public class DbFilmStorage implements FilmStorage {
     }
 
 
-
     @Override
     public List<Film> getSortedByLikesFilmsOfDirector(long directorId) {
         final String GET_SORTED_FILMS_BY_DIRECTOR_QUERY = """
-            SELECT f.*, m.mpa_name, COUNT(uf.user_id) AS likes_count
-            FROM films f
-            LEFT JOIN users_films_like uf ON f.film_id = uf.film_id
-            LEFT JOIN films_directors fd ON f.film_id = fd.film_id
-            LEFT JOIN mpa m ON m.mpa_id = f.mpa_id
-            WHERE fd.director_id = ?
-            GROUP BY f.film_id
-            ORDER BY likes_count DESC
-            """;
+                SELECT f.*, m.mpa_name, COUNT(uf.user_id) AS likes_count
+                FROM films f
+                LEFT JOIN users_films_like uf ON f.film_id = uf.film_id
+                LEFT JOIN films_directors fd ON f.film_id = fd.film_id
+                LEFT JOIN mpa m ON m.mpa_id = f.mpa_id
+                WHERE fd.director_id = ?
+                GROUP BY f.film_id
+                ORDER BY likes_count DESC
+                """;
 
         log.debug("Получение фильмов режиссёра с id = '{}' отсортированных по количеству лайков", directorId);
 
@@ -397,6 +417,7 @@ public class DbFilmStorage implements FilmStorage {
     /**
      * Метод обновляет данные во множестве фильмов, переданных в качестве аргумета. А именно,
      * устанавливает для каждого фильма из множества соответствующие ему жанры
+     *
      * @param films множество фильмов, для которых нужно установить соответствующие жанры
      */
     private void assignGenresForFilms(List<Film> films) {
@@ -452,6 +473,7 @@ public class DbFilmStorage implements FilmStorage {
     /**
      * Метод обновляет данные во множестве фильмов, переданных в качестве аргумента. А именно,
      * устанавливает для каждого фильма из множества соответствующих ему режиссёров
+     *
      * @param films множество фильмов, для которых нужно установить соответствующих режиссёров
      */
     private void assignDirectorsForFilms(List<Film> films) {
@@ -482,11 +504,11 @@ public class DbFilmStorage implements FilmStorage {
         String sqlPlaceholder = String.join(",", Collections.nCopies(filmsIds.size(), "?"));
 
         final String GET_DIRECTORS_QUERY = """
-            SELECT fd.film_id, d.id AS director_id, d.name
-            FROM films_directors fd
-            JOIN directors d ON fd.director_id = d.id
-            WHERE fd.film_id IN (%s)
-            """.formatted(sqlPlaceholder);
+                SELECT fd.film_id, d.id AS director_id, d.name
+                FROM films_directors fd
+                JOIN directors d ON fd.director_id = d.id
+                WHERE fd.film_id IN (%s)
+                """.formatted(sqlPlaceholder);
 
         // Подготовляем итоговую карту для хранения режиссёров по идентификаторам фильмов
         Map<Long, Set<Director>> directorsByFilmId = new HashMap<>();
