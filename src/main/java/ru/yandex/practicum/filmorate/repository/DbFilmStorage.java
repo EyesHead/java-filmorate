@@ -616,4 +616,29 @@ public class DbFilmStorage implements FilmStorage {
         final String sql = "DELETE FROM films WHERE film_id = ?";
         jdbcTemplate.update(sql, filmId);
     }
+
+    @Override
+    public Collection<Film> filmsSearch(String title, String director) {
+        final String GET_MOST_LIKED_FILMS_QUERY = """
+                SELECT f.*, m.mpa_name
+                FROM FILMS f
+                LEFT JOIN mpa m ON f.mpa_id = m.mpa_id
+                LEFT JOIN users_films_like uf ON f.film_id = uf.film_id
+                LEFT JOIN films_directors fd ON fd.film_id  = f.film_id
+                LEFT JOIN directors d ON d.id = fd.director_id
+                WHERE LOWER (d.name) LIKE '%'|| ? ||'%' OR LOWER(f.FILM_NAME) LIKE '%'|| ? ||'%'
+                GROUP BY f.film_id
+                ORDER BY COUNT(uf.user_id) DESC
+                """;
+
+        log.debug("Получение самых популярных фильмов с подстрокой: {} {}", title, director);
+
+        List<Film> films = jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY, new FilmRowMapper(), director, title);
+        assignGenresForFilms(films);
+        assignDirectorsForFilms(films);
+
+        log.debug("Получено {} популярных фильмов ", films.size());
+
+        return films;
+    }
 }
