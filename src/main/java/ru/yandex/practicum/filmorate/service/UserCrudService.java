@@ -28,8 +28,8 @@ public class UserCrudService {
     public User createUser(@Validated(Marker.OnCreate.class) User user) {
         log.info("(NEW) Получен запрос на создание пользователя '{}' с логином = '{}'", user.getName(), user.getLogin());
 
-        if (user.getName() == null) {
-            user = user.toBuilder().name(user.getLogin()).build();
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
         }
 
         return userStorage.saveUser(user);

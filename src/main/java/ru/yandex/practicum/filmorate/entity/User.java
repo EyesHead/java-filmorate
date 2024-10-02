@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.filmorate.validation.constraints.LoginForm;
 
@@ -13,25 +14,26 @@ import java.util.List;
 
 @Data
 @Builder(toBuilder = true)
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @NotNull(groups = {Marker.OnUpdate.class})
     @Positive
-    private final Long id;
+    final Long id;
 
     @NotBlank(groups = Marker.OnCreate.class)
     @Email(groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
-    private final String email;
+    final String email;
 
     @NotBlank(groups = Marker.OnCreate.class)
     @LoginForm(groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
-    private final String login;
+    final String login;
 
-    private final String name;
+    @Setter
+    String name;
 
     @PastOrPresent(groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
-    private final LocalDate birthday;
+    final LocalDate birthday;
 
     @Builder.Default
-    private final List<Long> friendsIds = new ArrayList<>();
+    final List<Long> friendsIds = new ArrayList<>();
 }

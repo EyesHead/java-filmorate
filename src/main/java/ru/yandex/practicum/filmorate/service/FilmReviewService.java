@@ -57,7 +57,7 @@ public class FilmReviewService {
 
     public Review getReview(long id) {
         return reviewStorage.getReviewById(id).orElseThrow(
-                () -> new NotFoundException("Отзыв с id + " + id + " отсутствует")
+                () -> new NotFoundException("Отзыв с id = " + id + " отсутствует")
         );
     }
 

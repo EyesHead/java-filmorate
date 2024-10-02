@@ -54,7 +54,7 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getAllFilms() {
+    public Collection<Film> getAllFilms() {
         final String GET_ALL_FILMS_QUERY = """
                 SELECT f.*, m.mpa_name
                 FROM films f
@@ -112,6 +112,9 @@ public class DbFilmStorage implements FilmStorage {
                 film.getMpa() == null ? null : film.getMpa().getId(),
                 film.getId());
 
+        updateFilmGenres(film.getId(), film.getGenres());
+        updateFilmDirectors(film.getId(), film.getDirectors());
+
         return getUpdatedFilm(film);
     }
 
@@ -157,6 +160,7 @@ public class DbFilmStorage implements FilmStorage {
                 new FilmRowMapper(), genreId, year, limit);
 
         assignGenresForFilms(films);
+        assignDirectorsForFilms(films);
 
         log.debug("Получено {} популярных фильмов по жанру и году", films.size());
         return films;
@@ -182,8 +186,10 @@ public class DbFilmStorage implements FilmStorage {
                 new FilmRowMapper(), genreId, year, limit);
 
         assignGenresForFilms(films);
+        assignDirectorsForFilms(films);
 
-        log.debug("Получено {} популярных фильмов", films.size());
+        log.debug("Получено {} популярных фильмов, отсортированных по {}", films.size(),
+                genreId == null ? "году выпуска = " + year : "жанру = " + genreId);
         return films;
     }
 
@@ -277,33 +283,38 @@ public class DbFilmStorage implements FilmStorage {
     private void updateFilmGenres(long filmId, Set<Genre> filmGenres) {
         log.debug("Обновление жанров для фильма с ID {}: {}", filmId, filmGenres);
         // Удаление существующих жанров фильма
-        final String DELETE_FILMS_GENRES_QUERY = "DELETE FROM films_genres WHERE film_id = ?";
-        jdbcTemplate.update(DELETE_FILMS_GENRES_QUERY, filmId);
+        final String DELETE_FILM_GENRES_QUERY = "DELETE FROM films_genres WHERE film_id = ?";
+
+        jdbcTemplate.update(DELETE_FILM_GENRES_QUERY, filmId);
         log.debug("Удалены старые жанры для фильма с ID {}", filmId);
 
         // Вставка новых жанров для фильма
-        final String INSERT_FILM_GENRES_QUERY = "INSERT INTO films_genres (film_id, genre_id) VALUES (?, ?)";
-        for (Genre genre : filmGenres) {
-            jdbcTemplate.update(INSERT_FILM_GENRES_QUERY, filmId, genre.getId());
-            log.trace("В таблицу films_genres добавлена запись с фильмом '{}' и жанром '{}'", filmId, genre.getId());
+        if (!filmGenres.isEmpty()) {
+            final String INSERT_FILM_GENRES_QUERY = "INSERT INTO films_genres (film_id, genre_id) VALUES (?, ?)";
+            for (Genre genre : filmGenres) {
+                jdbcTemplate.update(INSERT_FILM_GENRES_QUERY, filmId, genre.getId());
+                log.trace("В таблицу films_genres добавлена запись с фильмом '{}' и жанром '{}'", filmId, genre.getId());
+            }
+            log.info("Жанры для фильма в таблице films_genres с ID {} успешно обновлены: {}", filmId, filmGenres);
         }
-        log.info("Жанры для фильма в таблице films_genres с ID {} успешно обновлены: {}", filmId, filmGenres);
     }
 
     private void updateFilmDirectors(long filmId, Set<Director> filmDirectors) {
         log.debug("Обновление режиссёров для фильма с ID {}: {}", filmId, filmDirectors);
         // Удаление существующих режиссёров фильма из films_directors
-        final String DELETE_FILMS_DIRECTORS_QUERY = "DELETE FROM films_directors WHERE film_id = ?";
-        jdbcTemplate.update(DELETE_FILMS_DIRECTORS_QUERY, filmId);
+        final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM films_directors WHERE film_id = ?";
+        jdbcTemplate.update(DELETE_FILM_DIRECTORS_QUERY, filmId);
         log.debug("Удалены старые режиссёры для фильма с ID {}", filmId);
 
-        // Вставка новых режиссёров для фильма в films_directors
-        final String INSERT_FILM_DIRECTORS_QUERY = "INSERT INTO films_directors (film_id, director_id) VALUES (?, ?)";
-        for (Director genre : filmDirectors) {
-            jdbcTemplate.update(INSERT_FILM_DIRECTORS_QUERY, filmId, genre.getId());
-            log.trace("В таблицу films_directors добавлена запись с фильмом '{}' и режиссёром '{}'", filmId, genre.getId());
+        if (!filmDirectors.isEmpty()) {
+            // Вставка новых режиссёров для фильма в films_directors
+            final String INSERT_FILM_DIRECTORS_QUERY = "INSERT INTO films_directors (film_id, director_id) VALUES (?, ?)";
+            for (Director genre : filmDirectors) {
+                jdbcTemplate.update(INSERT_FILM_DIRECTORS_QUERY, filmId, genre.getId());
+                log.trace("В таблицу films_directors добавлена запись с фильмом '{}' и режиссёром '{}'", filmId, genre.getId());
+            }
+            log.info("Режиссёры в таблице films_directors для фильма с ID {} успешно обновлены: {}", filmId, filmDirectors);
         }
-        log.info("Режиссёры в таблице films_directors для фильма с ID {} успешно обновлены: {}", filmId, filmDirectors);
     }
 
     @Override
@@ -444,7 +455,6 @@ public class DbFilmStorage implements FilmStorage {
         }
     }
 
-
     /**
      * Метод обновляет данные во множестве фильмов, переданных в качестве аргумента. А именно,
      * устанавливает для каждого фильма из множества соответствующих ему режиссёров
@@ -476,6 +486,7 @@ public class DbFilmStorage implements FilmStorage {
             film.getDirectors().addAll(directors);
         }
     }
+
 
     private Set<Genre> getFilmGenres(long filmId) {
         final String GET_GENRES_BY_FILM_ID_QUERY = """
@@ -533,7 +544,10 @@ public class DbFilmStorage implements FilmStorage {
         long filmId = film.getId();
 
         // Получаем MPA рейтинг фильма с названием (если был указан)
-        Mpa filmMpa = film.getMpa() != null ? getFilmMpa(filmId).orElse(null) : null;
+        Mpa filmMpa = null;
+        if (film.getMpa() != null) {
+            filmMpa = getFilmMpa(filmId).orElse(null);
+        }
         // Обновляем жанры фильмов в таблице films_genres (если жанры были указаны)
         Set<Genre> filmGenres = new HashSet<>();
         if (CollectionUtils.isNotEmpty(film.getGenres())) {
