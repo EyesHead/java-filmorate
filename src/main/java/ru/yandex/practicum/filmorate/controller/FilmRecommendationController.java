@@ -19,8 +19,6 @@ public class FilmRecommendationController {
 
     @GetMapping
     public List<Film> getRecommendedFilms(@PathVariable @NotNull long id) {
-        List<Film> r = filmRecommendationService.getRecommendedFilms(id);
-        System.out.println(r);
-        return r;
+    return filmRecommendationService.getRecommendedFilms(id);
     }
 }
