@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.service.validators.DirectorValidator;
 import ru.yandex.practicum.filmorate.service.validators.FilmValidator;
 import ru.yandex.practicum.filmorate.service.validators.UserValidator;
 
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -29,7 +30,7 @@ public class FilmCrudService {
         );
     }
 
-    public List<Film> getAll() {
+    public Collection<Film> getAll() {
         log.info("(NEW) Получен новый запрос на получение списка всех фильмов.");
         return filmRepo.getAllFilms();
     }
