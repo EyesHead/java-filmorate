@@ -31,8 +31,6 @@ public class FilmLikeService {
         filmValidator.checkFilmOnExist(filmId);
         userValidator.checkUserOnExist(userId);
 
-        filmValidator.checkIsUserAlreadyLikedFilm(filmId, userId);
-
         filmStorage.saveLikeToFilm(filmId, userId);
         eventLogger.logEvent(userId, LIKE, ADD, filmId);
     }
@@ -59,8 +57,9 @@ public class FilmLikeService {
     }
 
     public Collection<Film> filmsSearch(String query, String by) {
+        log.debug("Получен поиск фильмов query: {} by: {}", query, by);
         String text = query.toLowerCase();
-        return switch (text) {
+        return switch (by) {
             case "title" -> filmStorage.filmsSearch(text, null);
             case "director" -> filmStorage.filmsSearch(null, text);
             default -> filmStorage.filmsSearch(text, text);
