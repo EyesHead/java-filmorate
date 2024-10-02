@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -18,13 +19,8 @@ public class DbLikeStorage implements LikeStorage {
 
     @Override
     public Map<Long, ArrayList<Long>> getMapOfLikesByPrimaryKey(List<Long> listOfIds, String primaryKey) {
-        if (listOfIds == null || listOfIds.isEmpty()) return new HashMap<>();
-        String secondaryKey;
-        if (primaryKey.equals("user_id")) {
-            secondaryKey = "film_id";
-        } else {
-            secondaryKey = "user_id";
-        }
+        if (CollectionUtils.isEmpty(listOfIds)) return new HashMap<>();
+        String secondaryKey = primaryKey.equals("user_id") ? "film_id" : "user_id";
         String inSql = String.join(",", Collections.nCopies(listOfIds.size(), "?"));
         final String GET_LIKED_FILMS_ID_BY_USER_ID = String.format("""
                 SELECT film_id, user_id
@@ -43,5 +39,6 @@ public class DbLikeStorage implements LikeStorage {
             }
             return result;
         }, listOfIds.toArray());
+
     }
 }
