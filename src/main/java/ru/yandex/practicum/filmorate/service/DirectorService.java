@@ -10,7 +10,7 @@ import ru.yandex.practicum.filmorate.entity.Director;
 import ru.yandex.practicum.filmorate.entity.Marker;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.repository.DirectorStorage;
-import ru.yandex.practicum.filmorate.service.util.DirectorValidator;
+import ru.yandex.practicum.filmorate.service.validators.DirectorValidator;
 
 import java.util.List;
 

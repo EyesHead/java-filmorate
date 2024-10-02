@@ -1,6 +1,6 @@
-package ru.yandex.practicum.filmorate.service.util;
+package ru.yandex.practicum.filmorate.service.validators;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
@@ -14,12 +14,11 @@ import ru.yandex.practicum.filmorate.repository.FilmStorage;
 import java.util.List;
 import java.util.Set;
 
-@AllArgsConstructor
-@Slf4j
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class FilmValidator {
-    private FilmStorage filmRepo;
-
+    private final FilmStorage filmRepo;
 
     public void checkFilmMpaRatingOnExist(Mpa mpa) throws InvalidDataRequestException {
         if (mpa == null) {

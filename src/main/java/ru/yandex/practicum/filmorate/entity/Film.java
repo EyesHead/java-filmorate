@@ -47,4 +47,12 @@ public class Film {
 
     @Builder.Default
     List<Long> userIdsWhoLiked = new ArrayList<>();
+
+    public Set<Genre> getGenres() {
+        return (this.genres == null) ? new HashSet<>() : this.genres;
+    }
+
+    public Set<Director> getDirectors() {
+        return (this.directors == null) ? new HashSet<>() : this.directors;
+    }
 }

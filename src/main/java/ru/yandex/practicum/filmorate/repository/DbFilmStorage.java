@@ -11,10 +11,7 @@ import ru.yandex.practicum.filmorate.entity.Director;
 import ru.yandex.practicum.filmorate.entity.Mpa;
 import ru.yandex.practicum.filmorate.entity.Film;
 import ru.yandex.practicum.filmorate.entity.Genre;
-import ru.yandex.practicum.filmorate.repository.mapper.DirectorRowMapper;
-import ru.yandex.practicum.filmorate.repository.mapper.GenreRowMapper;
-import ru.yandex.practicum.filmorate.repository.mapper.MpaRowMapper;
-import ru.yandex.practicum.filmorate.repository.mapper.FilmRowMapper;
+import ru.yandex.practicum.filmorate.repository.mapper.*;
 
 import java.util.*;
 
@@ -57,7 +54,7 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getAllFilms() {
+    public List<Film> getAllFilms() {
         final String GET_ALL_FILMS_QUERY = """
                 SELECT f.*, m.mpa_name
                 FROM films f
@@ -135,6 +132,7 @@ public class DbFilmStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(GET_MOST_LIKED_FILMS_QUERY, new FilmRowMapper(), limit);
 
         assignGenresForFilms(films);
+        assignDirectorsForFilms(films);
 
         log.debug("Получено {} самых популярных фильмов", films.size());
         return films;
@@ -421,54 +419,31 @@ public class DbFilmStorage implements FilmStorage {
      * @param films множество фильмов, для которых нужно установить соответствующие жанры
      */
     private void assignGenresForFilms(List<Film> films) {
-        log.debug("Начало присваивания жанров для '{}' фильмов", films.size());
-        Map<Long, Set<Genre>> filmGenresMap = getFilmsGenres(films);
-
-        for (Film film : films) {
-            long filmId = film.getId();
-            var genres = filmGenresMap.get(filmId);
-            film.getGenres().addAll(genres);
-            log.trace("Жанры '{}' был успешно присвоен фильму '{}'", genres, filmId);
-        }
-    }
-
-    /**
-     * @param films множество фильмов, для которых нужно найти соответствующие жанры
-     * @return Метод возвращает Map, где ключ — это идентификатор фильма,
-     * а значение — это набор идентификаторов жанров, соответствующих этому фильму
-     */
-    private Map<Long, Set<Genre>> getFilmsGenres(List<Film> films) {
-        List<Long> filmsIds = films
-                .stream()
+        List<Long> filmIds = films.stream()
                 .map(Film::getId)
                 .toList();
-        // Преобразуем множество идентификаторов фильмов в строку для параметризованного запроса
-        String sqlPlaceholder = String.join(",", Collections.nCopies(filmsIds.size(), "?"));
 
-        final String GET_GENRES_QUERY = """
+        if (filmIds.isEmpty()) {
+            log.trace("Список ID фильмов пуст. Жанры не будут назначены переданным фильмам.");
+            return;
+        }
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String sqlQuery = String.format("""
                 SELECT fg.film_id, g.genre_id, g.name
                 FROM films_genres fg
                 JOIN genres g ON fg.genre_id = g.genre_id
-                WHERE fg.film_id IN (%s)
-                """.formatted(sqlPlaceholder);
+                WHERE fg.film_id IN (%s)""", inSql);
 
-        // Подготовляем итоговую карту для хранения жанров по идентификаторам фильмов
-        Map<Long, Set<Genre>> genresByFilmId = new HashMap<>();
+        // Выполняем запрос, передавая список filmIds как параметры вместо ?
+        Map<Long, Set<Genre>> filmGenresMap = jdbcTemplate.query(sqlQuery, filmIds.toArray(), new FilmGenresRowMapper());
 
-        // Выполняем запрос
-        jdbcTemplate.query(GET_GENRES_QUERY, filmsIds.toArray(), (rs) -> {
-            long filmId = rs.getLong("film_id");
-            Genre genre = Genre.builder()
-                    .id(rs.getLong("genre_id"))
-                    .name(rs.getString("name"))
-                    .build();
-
-            // Добавляем идентификатор жанра в соответствующий набор жанров фильма
-            genresByFilmId.computeIfAbsent(filmId, k -> new HashSet<>()).add(genre);
-        });
-
-        return genresByFilmId;
+        // Проходим по каждому фильму и добавляем жанры
+        for (Film film : films) {
+            Set<Genre> genres = filmGenresMap.getOrDefault(film.getId(), new HashSet<>());
+            film.getGenres().addAll(genres);
+        }
     }
+
 
     /**
      * Метод обновляет данные во множестве фильмов, переданных в качестве аргумента. А именно,
@@ -476,58 +451,31 @@ public class DbFilmStorage implements FilmStorage {
      *
      * @param films множество фильмов, для которых нужно установить соответствующих режиссёров
      */
-    private void assignDirectorsForFilms(List<Film> films) {
-        log.debug("Начало присваивания режиссёров для '{}' фильмов", films.size());
-        Map<Long, Set<Director>> filmDirectorsMap = getFilmsDirectors(films);
-
-        for (Film film : films) {
-            long filmId = film.getId();
-            var directors = filmDirectorsMap.get(filmId);
-            if (directors != null) {
-                film.getDirectors().addAll(directors);
-                log.trace("Режиссёры '{}' были успешно присвоены фильму '{}'", directors, filmId);
-            }
-        }
-    }
-
-    /**
-     * @param films множество фильмов, для которых нужно найти соответствующих режиссёров
-     * @return Метод возвращает Map, где ключ — это идентификатор фильма,
-     * а значение — это набор режиссёров, соответствующих этому фильму
-     */
-    private Map<Long, Set<Director>> getFilmsDirectors(List<Film> films) {
-        List<Long> filmsIds = films.stream()
+    private void assignDirectorsForFilms(Collection<Film> films) {
+        List<Long> filmIds = films.stream()
                 .map(Film::getId)
                 .toList();
 
-        // Преобразуем множество идентификаторов фильмов в строку для параметризованного запроса
-        String sqlPlaceholder = String.join(",", Collections.nCopies(filmsIds.size(), "?"));
-
-        final String GET_DIRECTORS_QUERY = """
+        if (filmIds.isEmpty()) {
+            log.trace("Список ID фильмов пуст. Режиссёры не будут назначены переданным фильмам.");
+            return;
+        }
+        String inSql = String.join(",", Collections.nCopies(filmIds.size(), "?"));
+        String sqlQuery = String.format("""
                 SELECT fd.film_id, d.id AS director_id, d.name
                 FROM films_directors fd
                 JOIN directors d ON fd.director_id = d.id
-                WHERE fd.film_id IN (%s)
-                """.formatted(sqlPlaceholder);
+                WHERE fd.film_id IN (%s)""",inSql);
 
-        // Подготовляем итоговую карту для хранения режиссёров по идентификаторам фильмов
-        Map<Long, Set<Director>> directorsByFilmId = new HashMap<>();
+        // Выполняем запрос, передавая список filmIds как параметры вместо ?
+        Map<Long, Set<Director>> filmDirectorsMap = jdbcTemplate.query(sqlQuery, filmIds.toArray(), new FilmDirectorsRowMapper());
 
-        // Выполняем запрос
-        jdbcTemplate.query(GET_DIRECTORS_QUERY, filmsIds.toArray(), (rs) -> {
-            long filmId = rs.getLong("film_id");
-            Director director = Director.builder()
-                    .id(rs.getLong("director_id"))
-                    .name(rs.getString("name"))
-                    .build();
-
-            // Добавляем идентификатор режиссёра в соответствующий набор режиссёров фильма
-            directorsByFilmId.computeIfAbsent(filmId, k -> new HashSet<>()).add(director);
-        });
-
-        return directorsByFilmId;
+        // Проходим по каждому фильму и добавляем режиссёров
+        for (Film film : films) {
+            Set<Director> directors = filmDirectorsMap.getOrDefault(film.getId(), new HashSet<>());
+            film.getDirectors().addAll(directors);
+        }
     }
-
 
     private Set<Genre> getFilmGenres(long filmId) {
         final String GET_GENRES_BY_FILM_ID_QUERY = """
@@ -585,10 +533,7 @@ public class DbFilmStorage implements FilmStorage {
         long filmId = film.getId();
 
         // Получаем MPA рейтинг фильма с названием (если был указан)
-        Mpa filmMpa = null;
-        if (film.getMpa() != null) {
-            filmMpa = getFilmMpa(filmId).orElse(null);
-        }
+        Mpa filmMpa = film.getMpa() != null ? getFilmMpa(filmId).orElse(null) : null;
         // Обновляем жанры фильмов в таблице films_genres (если жанры были указаны)
         Set<Genre> filmGenres = new HashSet<>();
         if (CollectionUtils.isNotEmpty(film.getGenres())) {
@@ -601,9 +546,7 @@ public class DbFilmStorage implements FilmStorage {
             updateFilmDirectors(filmId, film.getDirectors());
             filmDirectors = getFilmDirectors(filmId);
         }
-
         log.info("Фильм с id '{}' успешно обновлен", film.getId());
-
         return film.toBuilder()
                 .genres(filmGenres)
                 .directors(filmDirectors)

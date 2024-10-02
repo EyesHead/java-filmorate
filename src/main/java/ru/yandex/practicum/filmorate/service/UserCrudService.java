@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.entity.User;
 import ru.yandex.practicum.filmorate.entity.Marker;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.repository.UserStorage;
-import ru.yandex.practicum.filmorate.service.util.UserValidator;
+import ru.yandex.practicum.filmorate.service.validators.UserValidator;
 
 import java.util.Collection;
 
