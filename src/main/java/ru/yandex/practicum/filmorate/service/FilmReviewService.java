@@ -41,7 +41,7 @@ public class FilmReviewService {
     }
 
     public Review updateReview(Review review) {
-        reviewValidator.checkReviewOnExistence(review.getReviewId());
+        reviewValidator.validateReview(review);
         reviewStorage.updateReview(review);
         Review updatedReview = reviewStorage.getReviewById(review.getReviewId()).get();
         long userId = updatedReview.getUserId();
@@ -79,11 +79,9 @@ public class FilmReviewService {
 
     public void addReviewLikeDislike(long reviewId, long userId, int likeStatus) {
         reviewStorage.addLikeDislike(reviewId, userId, likeStatus);
-        eventLogger.logEvent(userId, REVIEW, UPDATE, reviewId);
     }
 
     public void deleteReviewLikeDislike(long reviewId, long userId) {
         reviewStorage.removeLikeDislike(reviewId, userId);
-        eventLogger.logEvent(userId, REVIEW, UPDATE, reviewId);
     }
 }
