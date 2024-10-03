@@ -35,7 +35,7 @@ public class FilmReviewService {
         userValidator.checkUserOnExist(review.getUserId());
         filmValidator.checkFilmOnExist(review.getFilmId());
         log.info("Добавление нового отзыва к фильму с id {}", review.getFilmId());
-        Review savedReview = reviewStorage.addReview(review);
+        Review savedReview = reviewStorage.saveReview(review);
         eventLogger.logEvent(savedReview.getUserId(), REVIEW, ADD, savedReview.getReviewId());
         return savedReview;
     }
