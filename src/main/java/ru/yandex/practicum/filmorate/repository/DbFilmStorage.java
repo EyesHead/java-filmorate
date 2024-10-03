@@ -194,35 +194,25 @@ public class DbFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteLikeFromFilm(long filmId, long userId) {
+    public boolean deleteLikeFromFilm(long filmId, long userId) {
         final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM users_films_like WHERE film_id = ? AND user_id = ?";
         log.debug("Удаление лайка от пользователя с ID {} для фильма с ID {}", userId, filmId);
 
-        int rowsDeleted = jdbcTemplate.update(DELETE_LIKE_FROM_FILM_QUERY, filmId, userId);
-        boolean isDeleted = rowsDeleted != 0;
+        boolean isDeleted = jdbcTemplate.update(DELETE_LIKE_FROM_FILM_QUERY, filmId, userId) != 0;
 
         log.info("Лайк для фильма с ID {} от пользователя с ID {} {}", filmId, userId, isDeleted ? "удален" : "не был найден");
+        return isDeleted;
     }
 
     @Override
-    public void saveLikeToFilm(long filmId, long userId) {
+    public boolean saveLikeToFilm(long filmId, long userId) {
         final String INSERT_LIKE_TO_FILM_QUERY = "MERGE INTO users_films_like (user_id, film_id) VALUES (?, ?)";
         log.debug("Добавление лайка пользователя с id = {} к фильму с id = {}", userId, filmId);
 
-        jdbcTemplate.update(INSERT_LIKE_TO_FILM_QUERY, userId, filmId);
-        log.info("Лайк для фильма с id = {} от пользователя с id = {} успешно добавлен.", filmId, userId);
-    }
+        boolean isSaved = jdbcTemplate.update(INSERT_LIKE_TO_FILM_QUERY, userId, filmId) != 0;
 
-    @Override
-    public List<Long> getUsersIdsWhoLikedFilm(long filmId) {
-        final String GET_USERS_IDS_WHO_LIKED_FILM_QUERY = "SELECT user_id FROM users_films_like WHERE film_id = ?";
-        log.debug("Получение id пользователей, которые поставили лайк фильму с id = {}", filmId);
-
-        List<Long> userIds = jdbcTemplate.query(GET_USERS_IDS_WHO_LIKED_FILM_QUERY,
-                (rs, rowNum) -> rs.getLong("user_id"), filmId);
-
-        log.debug("Полученные id пользователей, которые поставили лайк фильму с id = {}: {}", filmId, userIds);
-        return userIds;
+        log.info("Лайк к фильму с ID {} от пользователя с ID {} {}", filmId, userId, isSaved ? "добавлен" : "не был добавлен");
+        return isSaved;
     }
 
     @Override

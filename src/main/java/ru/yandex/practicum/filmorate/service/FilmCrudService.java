@@ -45,7 +45,6 @@ public class FilmCrudService {
     public Film update(Film film) {
         log.info("(NEW) Получен новый запрос на обновление фильма с ID = {}", film.getId());
         filmValidator.checkFilmGenresOnExist(film.getGenres());
-
         filmValidator.checkFilmOnExist(film.getId());
         return filmRepo.updateFilm(film);
     }
@@ -53,7 +52,6 @@ public class FilmCrudService {
     public List<Film> getCommonFilms(long userId, long friendId) {
         log.info("(NEW) Получен новый запрос на получение общих фильмов пользователей userId='{}',friendId='{}'",
                 userId, friendId);
-
         userValidator.checkUserOnExist(userId);
         userValidator.checkUserOnExist(friendId);
 

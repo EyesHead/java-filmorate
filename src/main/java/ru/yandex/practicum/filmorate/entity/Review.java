@@ -2,33 +2,33 @@ package ru.yandex.practicum.filmorate.entity;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder(toBuilder = true)
-@AllArgsConstructor
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class Review {
     @NotNull(message = "Review ID required",
             groups = {Marker.OnUpdate.class})
-    private long reviewId;
+    long reviewId;
 
     @NotNull(message = "Film ID required",
             groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
-    private Long filmId;
+    Long filmId;
 
     @NotNull(message = "User ID required",
             groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
-    private Long userId;
+    Long userId;
 
     @NotNull(message = "Review attitude required",
             groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
-    private Boolean isPositive;
+    Boolean isPositive;
 
     @NotBlank(message = "Content cannot be empty",
             groups = {Marker.OnCreate.class, Marker.OnUpdate.class})
-    private String content;
+    String content;
 
-    private int useful;
+    int useful;
 }
