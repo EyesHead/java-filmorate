@@ -31,8 +31,10 @@ public class FilmLikeService {
         filmValidator.checkFilmOnExist(filmId);
         userValidator.checkUserOnExist(userId);
 
-        filmStorage.saveLikeToFilm(filmId, userId);
-        eventLogger.logEvent(userId, LIKE, ADD, filmId);
+        if (filmStorage.saveLikeToFilm(filmId, userId)) {
+            eventLogger.logEvent(userId, LIKE, ADD, filmId);
+            log.info("Пользователь с id = {} поставил лайк к фильму с id = {}", userId, filmId);
+        }
     }
 
     public void removeLikeFromFilm(long filmId, long userId) {
@@ -41,8 +43,10 @@ public class FilmLikeService {
         filmValidator.checkFilmOnExist(filmId);
         userValidator.checkUserOnExist(userId);
 
-        filmStorage.deleteLikeFromFilm(filmId, userId);
-        eventLogger.logEvent(userId, LIKE, REMOVE, filmId);
+        if (filmStorage.deleteLikeFromFilm(filmId, userId)) {
+            eventLogger.logEvent(userId, LIKE, REMOVE, filmId);
+            log.info("Пользователь с id = {} удалил свой лайк из фильма с id = {}", userId, filmId);
+        }
     }
 
     public Collection<Film> getMostLikedFilms(Integer count, Integer genreId, Integer year) {

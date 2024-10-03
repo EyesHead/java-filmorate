@@ -23,7 +23,7 @@ public class DbReviewStorage implements ReviewStorage {
     private final ReviewRowMapper reviewRowMapper;
 
     @Override
-    public Review addReview(Review review) {
+    public Review saveReview(Review review) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName("reviews")
                 .usingGeneratedKeyColumns("id");
         Map<String, Object> parameters = new HashMap<>();
@@ -32,26 +32,26 @@ public class DbReviewStorage implements ReviewStorage {
         parameters.put("is_positive", review.getIsPositive());
         parameters.put("content", review.getContent());
         long newReviewId = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-        review.setReviewId(newReviewId);
-        log.info("Добавлен отзыв к фильму {} c id {}", review.getFilmId(), review.getReviewId());
-        return review;
+        Review savedReview = review.toBuilder().reviewId(newReviewId).build();
+        log.info("Добавлен отзыв к фильму {} c id {}", savedReview.getFilmId(), savedReview.getReviewId());
+        return savedReview;
     }
 
     @Override
-    public void updateReview(Review review) {
+    public boolean updateReview(Review review) {
         final String UPDATE_REVIEW_QUERY = """
                 UPDATE reviews SET is_positive = ?, content = ?
                 WHERE id = ?;
                 """;
-        jdbcTemplate.update(UPDATE_REVIEW_QUERY, review.getIsPositive(), review.getContent(), review.getReviewId());
+        return jdbcTemplate.update(UPDATE_REVIEW_QUERY, review.getIsPositive(), review.getContent(), review.getReviewId()) != 0;
     }
 
     @Override
-    public void removeReview(long reviewId) {
+    public boolean removeReview(long reviewId) {
         final String REMOVE_REVIEW_QUERY = """
                 DELETE FROM reviews WHERE id = ?;
                 """;
-        jdbcTemplate.update(REMOVE_REVIEW_QUERY, reviewId);
+        return jdbcTemplate.update(REMOVE_REVIEW_QUERY, reviewId) != 0;
     }
 
     @Override
@@ -99,7 +99,7 @@ public class DbReviewStorage implements ReviewStorage {
     }
 
     @Override
-    public void addLikeDislike(long reviewId, long userId, int likeStatus) {
+    public boolean addLikeDislike(long reviewId, long userId, int likeStatus) {
         final String ADD_REVIEW_LIKE_QUERY = """
                 INSERT INTO reviews_likes (review_id, user_id, liked)
                 VALUES (?, ?, ?);
@@ -109,18 +109,18 @@ public class DbReviewStorage implements ReviewStorage {
                 WHERE review_id = ? AND user_id = ?
                 """;
         try {
-            jdbcTemplate.update(ADD_REVIEW_LIKE_QUERY, reviewId, userId, likeStatus);
+            return jdbcTemplate.update(ADD_REVIEW_LIKE_QUERY, reviewId, userId, likeStatus) != 0;
         } catch (DataIntegrityViolationException e) {
-            jdbcTemplate.update(UPDATE_REVIEW_LIKE_QUERY, likeStatus, reviewId, userId);
+            return jdbcTemplate.update(UPDATE_REVIEW_LIKE_QUERY, likeStatus, reviewId, userId) != 0;
         }
     }
 
     @Override
-    public void removeLikeDislike(long reviewId, long userId) {
+    public boolean removeLikeDislike(long reviewId, long userId) {
         final String REMOVE_REVIEW_LIKE_QUERY = """
                 DELETE FROM reviews_likes
                 WHERE review_id = ? AND user_id = ?;
                 """;
-        jdbcTemplate.update(REMOVE_REVIEW_LIKE_QUERY, reviewId, userId);
+        return jdbcTemplate.update(REMOVE_REVIEW_LIKE_QUERY, reviewId, userId) != 0;
     }
 }

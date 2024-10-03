@@ -35,18 +35,20 @@ public class FilmReviewService {
         userValidator.checkUserOnExist(review.getUserId());
         filmValidator.checkFilmOnExist(review.getFilmId());
         log.info("Добавление нового отзыва к фильму с id {}", review.getFilmId());
-        Review savedReview = reviewStorage.addReview(review);
+        Review savedReview = reviewStorage.saveReview(review);
         eventLogger.logEvent(savedReview.getUserId(), REVIEW, ADD, savedReview.getReviewId());
         return savedReview;
     }
 
     public Review updateReview(Review review) {
         reviewValidator.checkReviewOnExistence(review.getReviewId());
-        reviewStorage.updateReview(review);
+        boolean isUpdated = reviewStorage.updateReview(review);
         Review updatedReview = reviewStorage.getReviewById(review.getReviewId()).get();
-        long userId = updatedReview.getUserId();
-        long entityId = updatedReview.getReviewId();
-        eventLogger.logEvent(userId, REVIEW, UPDATE, entityId);
+        if (isUpdated) {
+            long userId = updatedReview.getUserId();
+            long entityId = updatedReview.getReviewId();
+            eventLogger.logEvent(userId, REVIEW, UPDATE, entityId);
+        }
         return updatedReview;
     }
 
@@ -54,8 +56,9 @@ public class FilmReviewService {
         log.info("Удаление отзыва с ID {}", id);
         Review reviewForDelete = getReview(id);
         long userId = reviewForDelete.getUserId();
-        eventLogger.logEvent(userId, REVIEW, REMOVE, id);
-        reviewStorage.removeReview(id);
+        if (reviewStorage.removeReview(id)) {
+            eventLogger.logEvent(userId, REVIEW, REMOVE, id);
+        }
     }
 
     public Review getReview(long id) {
@@ -78,12 +81,14 @@ public class FilmReviewService {
     }
 
     public void addReviewLikeDislike(long reviewId, long userId, int likeStatus) {
-        reviewStorage.addLikeDislike(reviewId, userId, likeStatus);
-        eventLogger.logEvent(userId, REVIEW, UPDATE, reviewId);
+        if (reviewStorage.addLikeDislike(reviewId, userId, likeStatus)) {
+            eventLogger.logEvent(userId, REVIEW, UPDATE, reviewId);
+        }
     }
 
     public void deleteReviewLikeDislike(long reviewId, long userId) {
-        reviewStorage.removeLikeDislike(reviewId, userId);
-        eventLogger.logEvent(userId, REVIEW, UPDATE, reviewId);
+        if (reviewStorage.removeLikeDislike(reviewId, userId)) {
+            eventLogger.logEvent(userId, REVIEW, UPDATE, reviewId);
+        }
     }
 }

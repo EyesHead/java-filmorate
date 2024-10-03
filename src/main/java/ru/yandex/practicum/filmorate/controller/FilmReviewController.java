@@ -52,23 +52,23 @@ public class FilmReviewController {
         return filmReviewService.getFilmReviews(filmId, Integer.parseInt(count));
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public void addReviewLike(@PathVariable @NotNull @Positive long id, @PathVariable @NotNull @Positive long userId) {
-        filmReviewService.addReviewLikeDislike(id, userId, 1);
+    @PutMapping("/{reviewId}/like/{userId}")
+    public void addReviewLike(@PathVariable @NotNull @Positive long reviewId, @PathVariable @NotNull @Positive long userId) {
+        filmReviewService.addReviewLikeDislike(reviewId, userId, 1);
     }
 
-    @PutMapping("/{id}/dislike/{userId}")
-    public void addReviewDislike(@PathVariable @NotNull @Positive long id, @PathVariable @NotNull @Positive long userId) {
-        filmReviewService.addReviewLikeDislike(id, userId, 0);
+    @PutMapping("/{reviewId}/dislike/{userId}")
+    public void addReviewDislike(@PathVariable @NotNull @Positive long reviewId, @PathVariable @NotNull @Positive long userId) {
+        filmReviewService.addReviewLikeDislike(reviewId, userId, 0);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public void deleteReviewLike(@PathVariable @NotNull @Positive long id, @PathVariable @NotNull @Positive long userId) {
-        filmReviewService.deleteReviewLikeDislike(id, userId);
+    @DeleteMapping("/{reviewId}/like/{userId}")
+    public void deleteReviewLike(@PathVariable @NotNull @Positive long reviewId, @PathVariable @NotNull @Positive long userId) {
+        filmReviewService.deleteReviewLikeDislike(reviewId, userId);
     }
 
-    @DeleteMapping("/{id}/dislike/{userId}")
-    public void deleteReviewDislike(@PathVariable @NotNull @Positive long id, @PathVariable @NotNull @Positive long userId) {
-        filmReviewService.deleteReviewLikeDislike(id, userId);
+    @DeleteMapping("/{reviewId}/dislike/{userId}")
+    public void deleteReviewDislike(@PathVariable @NotNull @Positive long reviewId, @PathVariable @NotNull @Positive long userId) {
+        filmReviewService.deleteReviewLikeDislike(reviewId, userId);
     }
 }
