@@ -32,9 +32,7 @@ public class DbReviewStorage implements ReviewStorage {
         parameters.put("is_positive", review.getIsPositive());
         parameters.put("content", review.getContent());
         long newReviewId = simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-        Review savedReview = review.toBuilder().reviewId(newReviewId).build();
-        log.info("Добавлен отзыв к фильму {} c id {}", savedReview.getFilmId(), savedReview.getReviewId());
-        return savedReview;
+        return review.toBuilder().reviewId(newReviewId).build();
     }
 
     @Override

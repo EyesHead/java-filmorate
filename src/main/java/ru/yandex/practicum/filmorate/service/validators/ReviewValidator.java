@@ -13,11 +13,11 @@ import ru.yandex.practicum.filmorate.repository.ReviewStorage;
 public class ReviewValidator {
     private final ReviewStorage reviewStorage;
 
-    public void validateReview(Review review) throws NotFoundException {
-        log.info("Проверка наличия отзыва с ID {}.", review.getReviewId());
+    public void checkReviewOnExist(Review review) throws NotFoundException {
+        log.debug("Проверка наличия отзыва с ID {}.", review.getReviewId());
         reviewStorage.getReviewById(review.getReviewId()).orElseThrow(
                 () -> new NotFoundException("Отзыв с ID " + review.getReviewId() + " отсутствует")
         );
-        log.info("Отзыв с ID {} найден.", review.getReviewId());
+        log.debug("Отзыв с ID {} найден.", review.getReviewId());
     }
 }

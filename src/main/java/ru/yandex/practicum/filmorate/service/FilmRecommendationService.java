@@ -24,7 +24,7 @@ public class FilmRecommendationService {
     private final FilmStorage filmStorage;
 
     private List<Long> getAnotherUsersWithSimilarLikes(List<Long> likedFilmsId, Long userId) {
-        log.info("Получение списка пользователей с похожими лайками");
+        log.debug("Получение списка пользователей с похожими лайками");
         Map<Long, ArrayList<Long>> mapOfFilmsToUserLists = likeStorage.getMapOfLikesByPrimaryKey(likedFilmsId,
                 "film_id");
         List<Long> listOfSimilarLikes = new ArrayList<>();
@@ -42,11 +42,10 @@ public class FilmRecommendationService {
     }
 
     private List<Long> getListOfFilmsToRecommend(Long userId) {
-        log.info("Получение списка ID фильмов для рекомендации пользователю {}", userId);
         List<Long> likedFilmsId = likeStorage.getMapOfLikesByPrimaryKey(Collections.singletonList(userId),
                 "user_id").get(userId);
         List<Long> similarUsers = getAnotherUsersWithSimilarLikes(likedFilmsId, userId);
-        log.info("Пользователи с похожими лайками {}", similarUsers);
+        log.debug("Пользователи с похожими лайками {}", similarUsers);
         Map<Long, ArrayList<Long>> similarUsersLikes = likeStorage.getMapOfLikesByPrimaryKey(similarUsers,
                 "user_id");
         return similarUsersLikes.values().stream().flatMap(List::stream).collect(Collectors.toSet()).stream()
@@ -55,8 +54,9 @@ public class FilmRecommendationService {
 
     public List<Film> getRecommendedFilms(Long userId) {
         userValidator.checkUserOnExist(userId);
+        log.info("(NEW) Получение списка рекомендованных фильмов для пользователя с id {}", userId);
         List<Long> recommendedFilmsIds = getListOfFilmsToRecommend(userId);
-        log.info("Получение списка фильмов по id {}", recommendedFilmsIds);
+        log.debug("Получение списка фильмов по id {}", recommendedFilmsIds);
         return filmStorage.getListOfFilmsById(recommendedFilmsIds);
     }
 }
