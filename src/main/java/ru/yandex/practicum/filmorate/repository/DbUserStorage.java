@@ -94,8 +94,11 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public Optional<User> getUserById(long userId) {
-        final String GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY =
-                "SELECT * FROM users WHERE user_id = ?";
+        final String GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY = """           
+                SELECT *
+                FROM users
+                WHERE user_id = ?
+                """;
 
         try {
             log.debug("Выполнение запроса на получение пользователя с id = {}. Запрос: {}",
@@ -120,7 +123,11 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public List<Long> getUserFriendsIds(long userId) {
-        final String GET_USER_FRIENDS_IDS_QUERY = "SELECT friend_id FROM friendship WHERE user_id = ?";
+        final String GET_USER_FRIENDS_IDS_QUERY = """
+                SELECT friend_id
+                FROM friendship
+                WHERE user_id = ?
+                """;
         log.debug("Начало выполнения запроса на получение id друзей пользователя с id = {}. Запрос: {}", userId, GET_USER_FRIENDS_IDS_QUERY);
 
         List<Long> friendIds = jdbcTemplate.query(
@@ -140,7 +147,10 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public void saveFriendToUser(long userId, long friendId) {
-        final String INSERT_FRIEND_TO_USER_QUERY = "INSERT INTO friendship(user_id, friend_id) VALUES (?, ?)";
+        final String INSERT_FRIEND_TO_USER_QUERY = """
+                INSERT INTO friendship(user_id, friend_id)
+                VALUES (?, ?)
+                """;
         log.debug("Начало добавления друга с id = {} пользователю с id = {}. Запрос: {}", friendId, userId, INSERT_FRIEND_TO_USER_QUERY);
 
         int rowsAffected = jdbcTemplate.update(INSERT_FRIEND_TO_USER_QUERY, userId, friendId);
@@ -151,7 +161,11 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public void removeFriend(long userId, long friendId) {
-        final String DELETE_USER_FRIENDS_QUERY = "DELETE FROM friendship WHERE user_id = ? AND friend_id = ?";
+        final String DELETE_USER_FRIENDS_QUERY = """
+                DELETE
+                FROM friendship
+                WHERE user_id = ? AND friend_id = ?
+                """;
         log.debug("Начало удаления друга с id = {} у пользователя с id = {}. Запрос: {}", friendId, userId, DELETE_USER_FRIENDS_QUERY);
 
         int rowsAffected = jdbcTemplate.update(DELETE_USER_FRIENDS_QUERY, userId, friendId);
@@ -209,7 +223,11 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public void deleteUserById(long userId) {
-        final String sql = "DELETE FROM users WHERE user_id = ?";
+        final String sql = """
+                DELETE
+                FROM users
+                WHERE user_id = ?
+                """;
         jdbcTemplate.update(sql, userId);
     }
 }

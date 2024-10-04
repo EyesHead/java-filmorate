@@ -195,7 +195,11 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public boolean deleteLikeFromFilm(long filmId, long userId) {
-        final String DELETE_LIKE_FROM_FILM_QUERY = "DELETE FROM users_films_like WHERE film_id = ? AND user_id = ?";
+        final String DELETE_LIKE_FROM_FILM_QUERY = """
+                DELETE
+                FROM users_films_like
+                WHERE film_id = ? AND user_id = ?
+                """;
         log.debug("Удаление лайка от пользователя с ID {} для фильма с ID {}", userId, filmId);
 
         boolean isDeleted = jdbcTemplate.update(DELETE_LIKE_FROM_FILM_QUERY, filmId, userId) != 0;
@@ -206,7 +210,10 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public boolean saveLikeToFilm(long filmId, long userId) {
-        final String INSERT_LIKE_TO_FILM_QUERY = "MERGE INTO users_films_like (user_id, film_id) VALUES (?, ?)";
+        final String INSERT_LIKE_TO_FILM_QUERY = """
+                MERGE INTO users_films_like (user_id, film_id)
+                VALUES (?, ?)
+                """;
         log.debug("Добавление лайка пользователя с id = {} к фильму с id = {}", userId, filmId);
 
         boolean isSaved = jdbcTemplate.update(INSERT_LIKE_TO_FILM_QUERY, userId, filmId) != 0;
@@ -217,7 +224,11 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public Collection<Genre> getAllGenres() {
-        final String GET_ALL_GENRES_QUERY = "SELECT * FROM genres ORDER BY genre_id ASC";
+        final String GET_ALL_GENRES_QUERY = """
+                SELECT *
+                FROM genres
+                ORDER BY genre_id ASC
+                """;
         log.debug("Получение всех жанров");
 
         List<Genre> genres = jdbcTemplate.query(GET_ALL_GENRES_QUERY, new GenreRowMapper());
@@ -227,7 +238,11 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public Optional<Genre> getGenre(long genreId) {
-        final String GET_GENRE_BY_ID_QUERY = "SELECT * FROM genres WHERE genre_id = ?";
+        final String GET_GENRE_BY_ID_QUERY = """
+                SELECT *
+                FROM genres
+                WHERE genre_id = ?
+                """;
         log.debug("Получение жанра с ID: {}", genreId);
 
         try {
@@ -246,7 +261,11 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public Collection<Mpa> getAllMpa() {
-        final String GET_ALL_MPA_RATINGS_QUERY = "SELECT * FROM mpa ORDER BY mpa_id ASC";
+        final String GET_ALL_MPA_RATINGS_QUERY = """
+                SELECT *
+                FROM mpa
+                ORDER BY mpa_id ASC
+                """;
 
         log.debug("Получение всех MPA рейтингов из базы данных.");
         Collection<Mpa> mpas = jdbcTemplate.query(GET_ALL_MPA_RATINGS_QUERY, new MpaRowMapper());
@@ -257,7 +276,11 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public Optional<Mpa> getMpa(long mpaId) {
-        final String GET_MPA_RATING_BY_ID = "SELECT * FROM mpa WHERE mpa_id = ?";
+        final String GET_MPA_RATING_BY_ID = """
+                SELECT *
+                FROM mpa
+                WHERE mpa_id = ?
+                """;
         log.debug("Получение MPA рейтинга с id = {} из базы данных.", mpaId);
 
         try {
@@ -273,14 +296,21 @@ public class DbFilmStorage implements FilmStorage {
     private void updateFilmGenres(long filmId, Set<Genre> filmGenres) {
         log.debug("Обновление жанров для фильма с ID {}: {}", filmId, filmGenres);
         // Удаление существующих жанров фильма
-        final String DELETE_FILM_GENRES_QUERY = "DELETE FROM films_genres WHERE film_id = ?";
+        final String DELETE_FILM_GENRES_QUERY = """
+                DELETE
+                FROM films_genres
+                WHERE film_id = ?
+                """;
 
         jdbcTemplate.update(DELETE_FILM_GENRES_QUERY, filmId);
         log.debug("Удалены старые жанры для фильма с ID {}", filmId);
 
         // Вставка новых жанров для фильма
         if (!filmGenres.isEmpty()) {
-            final String INSERT_FILM_GENRES_QUERY = "INSERT INTO films_genres (film_id, genre_id) VALUES (?, ?)";
+            final String INSERT_FILM_GENRES_QUERY = """
+                    INSERT INTO films_genres (film_id, genre_id)
+                    VALUES (?, ?)
+                    """;
             for (Genre genre : filmGenres) {
                 jdbcTemplate.update(INSERT_FILM_GENRES_QUERY, filmId, genre.getId());
                 log.trace("В таблицу films_genres добавлена запись с фильмом '{}' и жанром '{}'", filmId, genre.getId());
@@ -292,13 +322,20 @@ public class DbFilmStorage implements FilmStorage {
     private void updateFilmDirectors(long filmId, Set<Director> filmDirectors) {
         log.debug("Обновление режиссёров для фильма с ID {}: {}", filmId, filmDirectors);
         // Удаление существующих режиссёров фильма из films_directors
-        final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM films_directors WHERE film_id = ?";
+        final String DELETE_FILM_DIRECTORS_QUERY = """
+                DELETE
+                FROM films_directors
+                WHERE film_id = ?
+                """;
         jdbcTemplate.update(DELETE_FILM_DIRECTORS_QUERY, filmId);
         log.debug("Удалены старые режиссёры для фильма с ID {}", filmId);
 
         if (!filmDirectors.isEmpty()) {
             // Вставка новых режиссёров для фильма в films_directors
-            final String INSERT_FILM_DIRECTORS_QUERY = "INSERT INTO films_directors (film_id, director_id) VALUES (?, ?)";
+            final String INSERT_FILM_DIRECTORS_QUERY = """
+                    INSERT INTO films_directors (film_id, director_id)
+                    VALUES (?, ?)
+                    """;
             for (Director genre : filmDirectors) {
                 jdbcTemplate.update(INSERT_FILM_DIRECTORS_QUERY, filmId, genre.getId());
                 log.trace("В таблицу films_directors добавлена запись с фильмом '{}' и режиссёром '{}'", filmId, genre.getId());
@@ -560,8 +597,12 @@ public class DbFilmStorage implements FilmStorage {
 
     @Override
     public void deleteFilmById(long filmId) {
-        final String sql = "DELETE FROM films WHERE film_id = ?";
-        jdbcTemplate.update(sql, filmId);
+        final String REMOVE_FILM_BY_ID = """
+                DELETE
+                FROM films
+                WHERE film_id = ?
+                """;
+        jdbcTemplate.update(REMOVE_FILM_BY_ID, filmId);
     }
 
     @Override

@@ -19,7 +19,11 @@ public class DbDirectorStorage implements DirectorStorage {
 
     @Override
     public Optional<Director> getDirectorById(long directorId) {
-        final String GET_DIRECTOR_BY_ID_QUERY = "SELECT * FROM directors WHERE id = ?";
+        final String GET_DIRECTOR_BY_ID_QUERY = """
+                SELECT *
+                FROM directors
+                WHERE id = ?
+                """;
         log.debug("Начало выполнения запроса для получения режиссера с ID: {}", directorId);
 
         try {
@@ -54,7 +58,11 @@ public class DbDirectorStorage implements DirectorStorage {
 
     @Override
     public List<Director> getAllDirectors() {
-        final String GET_ALL_DIRECTORS_QUERY = "SELECT * FROM directors ORDER BY id ASC";
+        final String GET_ALL_DIRECTORS_QUERY = """
+                SELECT *
+                FROM directors
+                ORDER BY id ASC
+                """;
         log.debug("Начало получения всех режиссеров в БД");
 
         List<Director> directors = jdbcTemplate.query(GET_ALL_DIRECTORS_QUERY, new DirectorRowMapper());
@@ -64,7 +72,11 @@ public class DbDirectorStorage implements DirectorStorage {
 
     @Override
     public void removeDirector(long directorId) {
-        final String DELETE_FROM_DIRECTORS_QUERY = "DELETE FROM directors WHERE id = ?";
+        final String DELETE_FROM_DIRECTORS_QUERY = """
+                DELETE
+                FROM directors
+                WHERE id = ?
+                """;
         log.debug("Начало выполнения удаления режиссёра с id = {} из БД", directorId);
 
         int rowsDeleted = jdbcTemplate.update(DELETE_FROM_DIRECTORS_QUERY, directorId);
@@ -74,7 +86,11 @@ public class DbDirectorStorage implements DirectorStorage {
 
     @Override
     public Director updateDirector(Director director) {
-        final String UPDATE_DIRECTOR_QUERY = "UPDATE directors SET name = ? WHERE id = ?";
+        final String UPDATE_DIRECTOR_QUERY = """
+                UPDATE directors
+                SET name = ?
+                WHERE id = ?
+                """;
         log.debug("Начало выполнения обновления режиссёра с id = {} в БД", director.getId());
 
         jdbcTemplate.update(UPDATE_DIRECTOR_QUERY, director.getName(), director.getId());
