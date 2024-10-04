@@ -20,9 +20,9 @@ public class FilmMpaService {
 
     public Collection<Mpa> getAllMpaRatings() {
         log.info("(NEW) Получен новый запрос получение всех рейтингов MPA сервиса");
-        Collection<Mpa> MPAs = filmRepository.getAllMpa();
-        log.info("(END) Всего было найдено '{}' рейтингов MPA в сервисе", MPAs.size());
-        return MPAs;
+        Collection<Mpa> mpaRatings = filmRepository.getAllMpa();
+        log.info("(END) Всего было найдено '{}' рейтингов MPA в сервисе", mpaRatings.size());
+        return mpaRatings;
     }
 
     public Mpa getMpaById(long mpaId) {
