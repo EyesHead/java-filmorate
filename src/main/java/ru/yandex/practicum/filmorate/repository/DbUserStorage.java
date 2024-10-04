@@ -165,8 +165,8 @@ public class DbUserStorage implements UserStorage {
         List<User> commonFriends = jdbcTemplate.query("""
                 SELECT u.*
                 FROM friendship f1
-                JOIN friendship f2 ON f1.friend_id = f2.friend_id 
-                JOIN users u ON f1.friend_id = u.user_id 
+                JOIN friendship f2 ON f1.friend_id = f2.friend_id
+                JOIN users u ON f1.friend_id = u.user_id
                 WHERE f1.user_id = ? AND f2.user_id = ?
                 """, new UserRowMapper(), userId, friendId);
 
