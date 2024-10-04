@@ -94,7 +94,7 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public Optional<User> getUserById(long userId) {
-        final String GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY = """           
+        final String GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY = """
                 SELECT *
                 FROM users
                 WHERE user_id = ?
