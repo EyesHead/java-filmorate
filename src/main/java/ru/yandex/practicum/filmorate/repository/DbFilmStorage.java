@@ -295,7 +295,7 @@ public class DbFilmStorage implements FilmStorage {
 
     private void updateFilmGenres(long filmId, Set<Genre> filmGenres) {
         log.debug("Обновление жанров для фильма с ID {}: {}", filmId, filmGenres);
-        // Удаление существующих жанров фильма
+
         final String DELETE_FILM_GENRES_QUERY = """
                 DELETE
                 FROM films_genres
@@ -305,7 +305,6 @@ public class DbFilmStorage implements FilmStorage {
         jdbcTemplate.update(DELETE_FILM_GENRES_QUERY, filmId);
         log.debug("Удалены старые жанры для фильма с ID {}", filmId);
 
-        // Вставка новых жанров для фильма
         if (!filmGenres.isEmpty()) {
             final String INSERT_FILM_GENRES_QUERY = """
                     INSERT INTO films_genres (film_id, genre_id)
@@ -321,7 +320,7 @@ public class DbFilmStorage implements FilmStorage {
 
     private void updateFilmDirectors(long filmId, Set<Director> filmDirectors) {
         log.debug("Обновление режиссёров для фильма с ID {}: {}", filmId, filmDirectors);
-        // Удаление существующих режиссёров фильма из films_directors
+
         final String DELETE_FILM_DIRECTORS_QUERY = """
                 DELETE
                 FROM films_directors
@@ -331,7 +330,6 @@ public class DbFilmStorage implements FilmStorage {
         log.debug("Удалены старые режиссёры для фильма с ID {}", filmId);
 
         if (!filmDirectors.isEmpty()) {
-            // Вставка новых режиссёров для фильма в films_directors
             final String INSERT_FILM_DIRECTORS_QUERY = """
                     INSERT INTO films_directors (film_id, director_id)
                     VALUES (?, ?)
@@ -415,7 +413,6 @@ public class DbFilmStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(GET_SORTED_FILMS_BY_DIRECTOR_QUERY,
                 new FilmRowMapper(), directorId);
 
-        // установка жанров и режиссёров для фильмов.
         assignGenresForFilms(films);
         assignDirectorsForFilms(films);
 
@@ -442,7 +439,6 @@ public class DbFilmStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(GET_SORTED_FILMS_BY_DIRECTOR_QUERY,
                 new FilmRowMapper(), directorId);
 
-        // установка жанров и режиссёров для фильмов.
         assignGenresForFilms(films);
         assignDirectorsForFilms(films);
 
@@ -472,10 +468,8 @@ public class DbFilmStorage implements FilmStorage {
                 JOIN genres g ON fg.genre_id = g.genre_id
                 WHERE fg.film_id IN (%s)""", inSql);
 
-        // Выполняем запрос, передавая список filmIds как параметры вместо ?
         Map<Long, Set<Genre>> filmGenresMap = jdbcTemplate.query(sqlQuery, filmIds.toArray(), new FilmGenresRowMapper());
 
-        // Проходим по каждому фильму и добавляем жанры
         for (Film film : films) {
             Set<Genre> genres = filmGenresMap.getOrDefault(film.getId(), new HashSet<>());
             film.getGenres().addAll(genres);
@@ -504,10 +498,8 @@ public class DbFilmStorage implements FilmStorage {
                 JOIN directors d ON fd.director_id = d.id
                 WHERE fd.film_id IN (%s)""", inSql);
 
-        // Выполняем запрос, передавая список filmIds как параметры вместо ?
         Map<Long, Set<Director>> filmDirectorsMap = jdbcTemplate.query(sqlQuery, filmIds.toArray(), new FilmDirectorsRowMapper());
 
-        // Проходим по каждому фильму и добавляем режиссёров
         for (Film film : films) {
             Set<Director> directors = filmDirectorsMap.getOrDefault(film.getId(), new HashSet<>());
             film.getDirectors().addAll(directors);
@@ -524,7 +516,6 @@ public class DbFilmStorage implements FilmStorage {
                 ORDER BY g.genre_id ASC""";
         log.debug("Получение жанров для фильма с id = {}", filmId);
 
-        // Используем LinkedHashSet для сохранения порядка жанров
         Set<Genre> genres = new LinkedHashSet<>(jdbcTemplate.query(
                 GET_GENRES_BY_FILM_ID_QUERY, new GenreRowMapper(), filmId));
         log.debug("Жанры для фильма с id найдены: filmId = {}, genres = {}", filmId, genres);
@@ -540,7 +531,6 @@ public class DbFilmStorage implements FilmStorage {
                 ORDER BY d.id ASC""";
         log.debug("Получение режиссёров для фильма с id = {}", filmId);
 
-        // Используем LinkedHashSet для сохранения порядка жанров
         Set<Director> directors = new LinkedHashSet<>(jdbcTemplate.query(
                 GET_DIRECTORS_BY_FILM_ID_QUERY, new DirectorRowMapper(), filmId));
         log.debug("Режиссёры для фильма с id найдены: filmId = {}, directors = {}", filmId, directors);
@@ -570,18 +560,15 @@ public class DbFilmStorage implements FilmStorage {
     private Film getUpdatedFilm(Film film) {
         long filmId = film.getId();
 
-        // Получаем MPA рейтинг фильма с названием (если был указан)
         Mpa filmMpa = null;
         if (film.getMpa() != null) {
             filmMpa = getFilmMpa(filmId).orElse(null);
         }
-        // Обновляем жанры фильмов в таблице films_genres (если жанры были указаны)
         Set<Genre> filmGenres = new HashSet<>();
         if (CollectionUtils.isNotEmpty(film.getGenres())) {
             updateFilmGenres(filmId, film.getGenres());
             filmGenres = getFilmGenres(filmId);
         }
-        // Обновляем режиссёров фильмов в таблице films_directors (если жанры были указаны)
         Set<Director> filmDirectors = new HashSet<>();
         if (CollectionUtils.isNotEmpty(film.getDirectors())) {
             updateFilmDirectors(filmId, film.getDirectors());

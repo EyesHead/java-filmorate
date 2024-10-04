@@ -22,11 +22,4 @@ public class EventRowMapper implements RowMapper<Event> {
                 .entityId(rs.getLong("entity_id"))
                 .build();
     }
-
-//    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-//    user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
-//    type_id TINYINT NOT NULL,
-//    operation_id TINYINT NOT NULL,
-//    entity_id BIGINT NOT NULL,
-//    event_timestamp BIGINT NOT NULL
 }

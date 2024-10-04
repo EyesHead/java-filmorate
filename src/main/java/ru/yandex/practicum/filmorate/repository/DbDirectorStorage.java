@@ -96,6 +96,6 @@ public class DbDirectorStorage implements DirectorStorage {
         jdbcTemplate.update(UPDATE_DIRECTOR_QUERY, director.getName(), director.getId());
 
         log.debug("Информация о режиссёре с id = {} была успешно обновлена", director.getId());
-        return director; // Возвращаем обновленного режиссера
+        return director;
     }
 }

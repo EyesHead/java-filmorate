@@ -23,7 +23,6 @@ public class FilmDirectorsRowMapper implements ResultSetExtractor<Map<Long, Set<
 
             Director director = new Director(directorId, directorName);
 
-            // Получаем существующий набор режиссёров для фильма или создаём новый
             filmDirectorsMap
                     .computeIfAbsent(filmId, k -> new HashSet<>())
                     .add(director);

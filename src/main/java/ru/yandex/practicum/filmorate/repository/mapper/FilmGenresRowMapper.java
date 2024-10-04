@@ -23,7 +23,6 @@ public class FilmGenresRowMapper implements ResultSetExtractor<Map<Long, Set<Gen
 
             Genre genre = new Genre(genreId, genreName);
 
-            // Получаем существующий набор жанров для фильма или создаём новый
             filmGenresMap
                     .computeIfAbsent(filmId, k -> new HashSet<>())
                     .add(genre);

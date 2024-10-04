@@ -40,11 +40,11 @@ public class FilmValidator {
             log.debug("Фильм не имеет жанров. Проверка закончена");
             return;
         }
-        // Создаем набор идентификаторов всех жанров для быстрой проверки наличия
+
         List<Long> allGenreIds = filmRepo.getAllGenres().stream()
                 .map(Genre::getId)
                 .toList();
-        // Проверяем каждый жанр фильма по id с существующими id жанров
+
         for (Genre requestGenre : filmGenres) {
             if (!allGenreIds.contains(requestGenre.getId())) {
                 throw new InvalidDataRequestException(
