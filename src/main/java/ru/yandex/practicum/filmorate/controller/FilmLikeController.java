@@ -2,12 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.entity.Film;
 import ru.yandex.practicum.filmorate.service.FilmLikeService;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/films")
@@ -28,7 +28,15 @@ public class FilmLikeController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getMostLikedFilms(@RequestParam Optional<Integer> count) {
-        return filmLikesService.getMostLikedFilms(count);
+    public Collection<Film> getMostLikedFilms(@RequestParam(defaultValue = "10") Integer count,
+                                              @RequestParam(required = false) Integer genreId,
+                                              @RequestParam(required = false) Integer year) {
+        return filmLikesService.getMostLikedFilms(count, genreId, year);
+    }
+
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public Collection<Film> filmsSearch(@RequestParam String query, @RequestParam String by) {
+        return filmLikesService.filmsSearch(query, by);
     }
 }

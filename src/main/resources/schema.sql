@@ -1,4 +1,5 @@
-DROP TABLE IF EXISTS mpa, users, films, genres, films_genres, users_films_like, friendship;
+DROP TABLE IF EXISTS mpa, users, films, genres, directors,films_genres, users_films_like, friendship,
+    reviews, reviews_likes, films_directors, friendship, events;
 
 -- Таблица mpa
 CREATE TABLE IF NOT EXISTS mpa (
@@ -51,4 +52,40 @@ CREATE TABLE IF NOT EXISTS friendship (
     user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     friend_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, friend_id)
+);
+
+CREATE TABLE IF NOT EXISTS directors (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS films_directors (
+    film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    director_id BIGINT NOT NULL REFERENCES directors (id) ON DELETE CASCADE,
+    PRIMARY KEY (film_id, director_id)
+);
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
+    is_positive BOOL,
+    content VARCHAR(200)
+);
+
+CREATE TABLE IF NOT EXISTS reviews_likes (
+    review_id BIGINT NOT NULL REFERENCES reviews (id) ON DELETE CASCADE,
+    user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    liked BIT,
+    PRIMARY KEY (review_id, user_id)
+);
+
+-- При удалении пользователя стираются все связанные с ним события
+CREATE TABLE IF NOT EXISTS events (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
+    type_id INTEGER NOT NULL,
+    operation_id INTEGER NOT NULL,
+    entity_id BIGINT NOT NULL,
+    event_timestamp BIGINT NOT NULL
 );

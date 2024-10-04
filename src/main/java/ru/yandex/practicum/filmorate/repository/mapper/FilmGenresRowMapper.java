@@ -1,39 +1,34 @@
 package ru.yandex.practicum.filmorate.repository.mapper;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.RowMapper;
-import ru.yandex.practicum.filmorate.entity.Film;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.yandex.practicum.filmorate.entity.Genre;
-import ru.yandex.practicum.filmorate.entity.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@RequiredArgsConstructor
-public class FilmGenresRowMapper implements RowMapper<Film> {
-    private final Map<Long, Set<Genre>> filmGenresMap;
+public class FilmGenresRowMapper implements ResultSetExtractor<Map<Long, Set<Genre>>> {
 
     @Override
-    public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
-        long filmId = rs.getLong("film_id");
+    public Map<Long, Set<Genre>> extractData(ResultSet rs) throws SQLException {
+        Map<Long, Set<Genre>> filmGenresMap = new HashMap<>();
 
-        Mpa mpa = rs.getLong("mpa_id") == 0 ? null :
-                new Mpa(rs.getLong("mpa_id"), rs.getString("mpa_name"));
+        while (rs.next()) {
+            Long filmId = rs.getLong("film_id");
+            Long genreId = rs.getLong("genre_id");
+            String genreName = rs.getString("name");
 
-        // Получаем жанры для текущего фильма из filmGenresMap
-        Set<Genre> genres = filmGenresMap.getOrDefault(filmId, Set.of());
+            Genre genre = new Genre(genreId, genreName);
 
+            // Получаем существующий набор жанров для фильма или создаём новый
+            filmGenresMap
+                    .computeIfAbsent(filmId, k -> new HashSet<>())
+                    .add(genre);
+        }
 
-        return Film.builder()
-                .id(filmId)
-                .name(rs.getString("film_name"))
-                .description(rs.getString("description"))
-                .releaseDate(rs.getDate("release_date").toLocalDate())
-                .duration(rs.getInt("duration"))
-                .genres(genres)
-                .mpa(mpa)
-                .build();
+        return filmGenresMap;
     }
 }

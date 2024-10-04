@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.service.FilmCrudService;
 import ru.yandex.practicum.filmorate.entity.Marker;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
@@ -48,5 +49,25 @@ public class FilmCrudController {
                            @Validated(Marker.OnUpdate.class)
                            Film film) {
         return filmService.update(film);
+    }
+
+    @GetMapping("/common")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Film> getCommonFilms(@RequestParam(name = "userId") long userId,
+                                     @RequestParam(name = "friendId") long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getSortedFilmsByDirector(
+            @PathVariable Long directorId,
+            @RequestParam(name = "sortBy") String sortBy) {
+        return filmService.getSortedFilmsByDirector(directorId, sortBy);
+    }
+
+    @DeleteMapping("{filmId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteFilmById(@PathVariable long filmId) {
+        filmService.deleteFilmById(filmId);
     }
 }
