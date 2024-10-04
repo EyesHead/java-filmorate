@@ -15,6 +15,6 @@ public class DirectorValidator {
 
     public void checkDirectorOnExists(long directorId) throws NotFoundException {
         directorStorage.getDirectorById(directorId).orElseThrow(
-                () -> new NotFoundException("Director was not found. Id = " + directorId));
+                () -> new NotFoundException("(END) Director was not found. Id = " + directorId));
     }
 }

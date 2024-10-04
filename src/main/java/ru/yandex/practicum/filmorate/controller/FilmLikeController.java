@@ -36,7 +36,7 @@ public class FilmLikeController {
 
     @GetMapping("/search")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<Film> filmsSearch(@RequestParam String query, @RequestParam String by) {
-        return filmLikesService.filmsSearch(query, by);
+    public Collection<Film> findFilmByQuery(@RequestParam String query, @RequestParam String by) {
+        return filmLikesService.getFilmsByQuery(query, by);
     }
 }

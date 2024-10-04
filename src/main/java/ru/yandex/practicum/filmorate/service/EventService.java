@@ -17,8 +17,14 @@ public class EventService {
     private final UserValidator userValidator;
 
     public List<Event> getUserEvents(long userId) {
+        log.info("(NEW) Получен запрос на получение ленты событий пользователя '{}'",
+                userId);
+
         userValidator.checkUserOnExist(userId);
 
-        return eventStorage.getUserEvents(userId);
+        List<Event> foundEvents = eventStorage.getUserEvents(userId);
+        log.info("(END) У пользователя c id = {} было найдено '{}' событий", userId, foundEvents.size());
+
+        return foundEvents;
     }
 }

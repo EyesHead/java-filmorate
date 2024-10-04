@@ -19,15 +19,20 @@ public class FilmGenreService {
     FilmStorage filmStorage;
 
     public Collection<Genre> getAllGenres() {
-        log.info("(NEW) Получен новый запрос получение всех жанров сервиса");
+        log.info("(NEW) Получен запрос на получение всех жанров сервиса.");
 
-        return filmStorage.getAllGenres();
+        Collection<Genre> genres = filmStorage.getAllGenres();
+        log.info("(END) Получены все жанры сервиса. Количество жанров: {}", genres.size());
+        return genres;
     }
 
     public Genre getGenreById(long genreId) {
-        log.info("Получен новый запрос получение жанра фильма с ID жанра = {}", genreId);
+        log.info("(NEW) Получен запрос на получение жанра фильма с ID = {}", genreId);
 
-        return filmStorage.getGenre(genreId).orElseThrow(
-                () -> new NotFoundException("Genre was not found. Id = " + genreId));
+        Genre foundGenre = filmStorage.getGenre(genreId).orElseThrow(
+                () -> new NotFoundException("Жанр не найден. Id = " + genreId)
+        );
+        log.info("(END) Жанр с ID = {} успешно получен: {}", genreId, foundGenre);
+        return foundGenre;
     }
 }

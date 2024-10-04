@@ -9,7 +9,10 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.entity.Director;
 import ru.yandex.practicum.filmorate.repository.mapper.DirectorRowMapper;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Repository
@@ -31,7 +34,7 @@ public class DbDirectorStorage implements DirectorStorage {
                     new DirectorRowMapper(),
                     directorId));
         } catch (EmptyResultDataAccessException e) {
-            log.warn("Режиссёр с ID {} не найден.", directorId);
+            log.debug("Режиссёр с ID {} не найден.", directorId);
             return Optional.empty();
         }
     }

@@ -18,20 +18,21 @@ public class DbEventStorage implements EventStorage {
     @Override
     public List<Event> getUserEvents(long userId) {
         final String GET_EVENTS_BY_USER_ID_QUERY = """
-                SELECT *
-                FROM events
-                WHERE user_id = ?
-                """;
-        log.debug("Выполнение запроса для получения всех событий, связанных с пользователем '{}'", userId);
+            SELECT *
+            FROM events
+            WHERE user_id = ?
+            """;
+        log.debug("(Repo) Выполнение запроса для получения всех событий, связанных с пользователем '{}'", userId);
 
         List<Event> foundEvents = jdbcTemplate.query(
                 GET_EVENTS_BY_USER_ID_QUERY,
-                    new EventRowMapper(),
-                    userId);
+                new EventRowMapper(),
+                userId);
+
         if (foundEvents.isEmpty()) {
-            log.info("Ещё нет событий, связанных с пользователем '{}'", userId);
+            log.debug("(Repo) Ещё нет событий, связанных с пользователем '{}'", userId);
         } else {
-            log.info("У пользователя '{}' найдено '{}' событий", userId, foundEvents.size());
+            log.debug("(Repo) У пользователя '{}' найдено '{}' событий", userId, foundEvents.size());
         }
 
         return foundEvents;

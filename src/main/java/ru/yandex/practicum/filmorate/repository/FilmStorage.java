@@ -4,7 +4,9 @@ import ru.yandex.practicum.filmorate.entity.Film;
 import ru.yandex.practicum.filmorate.entity.Genre;
 import ru.yandex.practicum.filmorate.entity.Mpa;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 
 public interface FilmStorage {
@@ -36,7 +38,7 @@ public interface FilmStorage {
 
     List<Film> getListOfFilmsById(List<Long> filmIds);
 
-    void deleteFilmById(long filmId);
+    boolean deleteFilmById(long filmId);
 
     List<Film> getSortedByReleaseDateFilmsOfDirector(long directorId);
 
@@ -44,5 +46,5 @@ public interface FilmStorage {
 
     List<Film> getCommonFilms(long userId, long friendId);
 
-    Collection<Film> filmsSearch(String title, String director);
+    Collection<Film> getFilmsByQuery(String title, String director);
 }

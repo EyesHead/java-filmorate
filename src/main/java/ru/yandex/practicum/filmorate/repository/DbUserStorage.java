@@ -22,27 +22,25 @@ public class DbUserStorage implements UserStorage {
 
     @Override
     public Collection<User> getAllUsers() {
-        final String GET_ALL_USERS_QUERY = """
+        log.debug("(Repo) Начало выполнения запроса на получение всех пользователей.");
+
+        List<User> users = jdbcTemplate.query("""
                 SELECT user_id, email, login, username, birthday
                 FROM users
-                """;
-        log.debug("Начало выполнения запроса на получение всех пользователей. Запрос: {}", GET_ALL_USERS_QUERY);
-
-        List<User> users = jdbcTemplate.query(GET_ALL_USERS_QUERY, new UserRowMapper());
+                """, new UserRowMapper());
 
         if (users.isEmpty()) {
-            log.info("Запрос завершен. Пользователи не найдены.");
+            log.debug("(Repo) Запрос завершен. Пользователи не найдены.");
         } else {
-            log.info("Запрос завершен. Количество найденных пользователей: {}. Пользователи: {}", users.size(), users);
+            log.debug("(Repo) Запрос завершен. Количество найденных пользователей: {}. Пользователи: {}", users.size(), users);
         }
 
         return users;
     }
 
-
     @Override
     public User saveUser(User user) {
-        log.debug("Начало сохранения нового пользователя в базу данных. Пользователь: {}", user);
+        log.debug("(Repo) Начало сохранения нового пользователя в базу данных. Пользователь: {}", user);
 
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("users")
@@ -54,57 +52,38 @@ public class DbUserStorage implements UserStorage {
         parameters.put("username", user.getName());
         parameters.put("birthday", user.getBirthday());
 
-        log.trace("Подготовленные параметры для вставки пользователя в базу: {}", parameters);
+        log.trace("(Repo) Подготовленные параметры для вставки пользователя в базу: {}", parameters);
 
         long userId = jdbcInsert.executeAndReturnKey(parameters).longValue();
-        log.debug("Пользователь успешно добавлен. Сгенерированный id: {}", userId);
+        log.trace("(Repo) Пользователь успешно добавлен. Сгенерированный id: {}", userId);
 
         User savedUser = user.toBuilder().id(userId).build();
-        log.info("Пользователь успешно создан и записан в базу данных. Пользователь: {}", savedUser);
+        log.debug("(Repo) Пользователь успешно создан и записан в базу данных. Пользователь: {}", savedUser);
 
         return savedUser;
     }
 
-
     @Override
     public User updateUser(User user) {
-        log.debug("Начало обновления данных пользователя с id = {}. Пользователь: {}", user.getId(), user);
+        log.debug("(Repo) Начало обновления данных пользователя с id = {}. Пользователь: {}", user.getId(), user);
 
-        final String UPDATE_USER_QUERY = """
+        jdbcTemplate.update("""
                 UPDATE users
                 SET email = ?, login = ?, username = ?, birthday = ?
                 WHERE user_id = ?
-                """;
+                """, user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
 
-        log.trace("Подготовка запроса для обновления данных пользователя. Запрос: {}", UPDATE_USER_QUERY);
-        log.trace("Параметры запроса: email = {}, login = {}, username = {}, birthday = {}, user_id = {}",
-                user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
-
-        jdbcTemplate.update(UPDATE_USER_QUERY,
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                user.getBirthday(),
-                user.getId());
-
-        log.info("Пользователь с id = {} успешно обновлен. Обновленные данные: {}", user.getId(), user);
+        log.debug("(Repo) Пользователь с id = {} успешно обновлен. Обновленные данные: {}", user.getId(), user);
         return user;
     }
 
-
     @Override
     public Optional<User> getUserById(long userId) {
-        final String GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY = """
-                SELECT *
-                FROM users
-                WHERE user_id = ?
-                """;
+        log.debug("(Repo) Выполнение запроса на получение пользователя с id = {}", userId);
 
         try {
-            log.debug("Выполнение запроса на получение пользователя с id = {}. Запрос: {}",
-                    userId, GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY);
             User user = jdbcTemplate.queryForObject(
-                    GET_USER_BY_ID_WITHOUT_FRIENDS_IDS_QUERY,
+                    "SELECT * FROM users WHERE user_id = ?",
                     new UserRowMapper(),
                     userId);
 
@@ -112,122 +91,97 @@ public class DbUserStorage implements UserStorage {
             User userWithFriends = user.toBuilder()
                     .friendsIds(friendsIds)
                     .build();
-            log.debug("Пользователь с id = {} найден: {}", userId, userWithFriends);
+            log.debug("(Repo) Пользователь с id = {} найден: {}", userId, userWithFriends);
 
             return Optional.of(userWithFriends);
         } catch (EmptyResultDataAccessException e) {
-            log.warn("Пользователь с id = {} не найден в базе данных.", userId);
+            log.warn("(Repo) Пользователь с id = {} не найден в базе данных.", userId);
             return Optional.empty();
         }
     }
 
     @Override
     public List<Long> getUserFriendsIds(long userId) {
-        final String GET_USER_FRIENDS_IDS_QUERY = """
-                SELECT friend_id
-                FROM friendship
-                WHERE user_id = ?
-                """;
-        log.debug("Начало выполнения запроса на получение id друзей пользователя с id = {}. Запрос: {}", userId, GET_USER_FRIENDS_IDS_QUERY);
+        log.debug("(Repo) Начало выполнения запроса на получение id друзей пользователя с id = {}.", userId);
 
         List<Long> friendIds = jdbcTemplate.query(
-                GET_USER_FRIENDS_IDS_QUERY,
+                "SELECT friend_id FROM friendship WHERE user_id = ?",
                 (rs, rowNum) -> rs.getLong("friend_id"),
                 userId);
 
         if (friendIds.isEmpty()) {
-            log.info("Пользователь с id = {} не имеет друзей.", userId);
+            log.debug("(Repo) Пользователь с id = {} не имеет друзей.", userId);
         } else {
-            log.info("Id друзей пользователя с id = {} успешно получены. Друзья: {}", userId, friendIds);
+            log.debug("(Repo) Id друзей пользователя с id = {} успешно получены. Друзья: {}", userId, friendIds);
         }
 
         return friendIds;
     }
 
-
     @Override
-    public void saveFriendToUser(long userId, long friendId) {
-        final String INSERT_FRIEND_TO_USER_QUERY = """
-                INSERT INTO friendship(user_id, friend_id)
-                VALUES (?, ?)
-                """;
-        log.debug("Начало добавления друга с id = {} пользователю с id = {}. Запрос: {}", friendId, userId, INSERT_FRIEND_TO_USER_QUERY);
-
-        int rowsAffected = jdbcTemplate.update(INSERT_FRIEND_TO_USER_QUERY, userId, friendId);
-
-        log.debug("Запрос на добавление друга выполнен. Затронуто строк: {}", rowsAffected);
-        log.info("Друг с id = {} успешно добавлен пользователю с id = {}", friendId, userId);
+    public void saveFriendToUser(long friendId, long userId) {
+        log.debug("(Repo) Начало добавления друга с id = {} пользователю с id = {}.", friendId, userId);
+        jdbcTemplate.update("""
+                INSERT INTO friendship(user_id, friend_id) VALUES (?, ?)
+                """, userId, friendId);
+        log.debug("(Repo) Друг с id = {} успешно добавлен пользователю с id = {}.", friendId, userId);
     }
 
     @Override
     public void removeFriend(long userId, long friendId) {
-        final String DELETE_USER_FRIENDS_QUERY = """
-                DELETE
-                FROM friendship
-                WHERE user_id = ? AND friend_id = ?
-                """;
-        log.debug("Начало удаления друга с id = {} у пользователя с id = {}. Запрос: {}", friendId, userId, DELETE_USER_FRIENDS_QUERY);
+        log.debug("(Repo) Начало удаления друга с id = {} у пользователя с id = {}.", friendId, userId);
 
-        int rowsAffected = jdbcTemplate.update(DELETE_USER_FRIENDS_QUERY, userId, friendId);
+        int rowsAffected = jdbcTemplate.update("""
+                DELETE FROM friendship
+                WHERE user_id = ? AND friend_id = ?
+                """, userId, friendId);
         if (rowsAffected == 0) {
-            log.info("У пользователя ID='{}' не было друга ID='{}'", userId, friendId);
+            log.info("(Repo) У пользователя ID='{}' не было друга ID='{}'", userId, friendId);
         } else {
-            log.info("Друг с id = {} успешно удален у пользователя с id = {}", friendId, userId);
+            log.info("(Repo) Друг с id = {} успешно удален у пользователя с id = {}.", friendId, userId);
         }
     }
 
     @Override
     public List<User> getUserFriends(long userId) {
-        final String GET_FRIENDS_QUERY = """
+        log.debug("(Repo) Начало выполнения запроса на получение списка друзей пользователя с id = {}.", userId);
+
+        List<User> friends = jdbcTemplate.query("""
                 SELECT u.*
                 FROM friendship f
                 JOIN users u ON f.friend_id = u.user_id
                 WHERE f.user_id = ?
-                """;
+                """, new UserRowMapper(), userId);
 
-        log.debug("Начало выполнения запроса на получение списка друзей пользователя с id = {}. Запрос: {}", userId, GET_FRIENDS_QUERY);
-
-        List<User> friends = jdbcTemplate.query(GET_FRIENDS_QUERY, new UserRowMapper(), userId);
-
-        if (friends.isEmpty()) {
-            log.info("Пользователь с id = {} не имеет друзей.", userId);
-        } else {
-            log.info("Список друзей пользователя с id = {} успешно получен. Друзья: {}", userId, friends);
-        }
+        log.debug("(Repo) Запрос завершен. Найдено друзей: {}. Друзья: {}", friends.size(), friends);
 
         return friends;
     }
 
     @Override
     public List<User> getCommonFriends(long userId, long friendId) {
-        String sql = """
+        log.debug("(Repo) Начало выполнения запроса на получение общих друзей пользователей с id = {} и id = {}.", userId, friendId);
+
+        List<User> commonFriends = jdbcTemplate.query("""
                 SELECT u.*
                 FROM friendship f1
-                JOIN friendship f2 ON f1.friend_id = f2.friend_id
-                JOIN users u ON f1.friend_id = u.user_id
+                JOIN friendship f2 ON f1.friend_id = f2.friend_id 
+                JOIN users u ON f1.friend_id = u.user_id 
                 WHERE f1.user_id = ? AND f2.user_id = ?
-                """;
+                """, new UserRowMapper(), userId, friendId);
 
-        log.debug("Начало выполнения запроса на получение общих друзей пользователей с id = {} и id = {}. Запрос: {}", userId, friendId, sql);
-
-        List<User> commonFriends = jdbcTemplate.query(sql, new UserRowMapper(), userId, friendId);
-
-        if (commonFriends.isEmpty()) {
-            log.info("Общие друзья для пользователей с id = {} и id = {} не найдены.", userId, friendId);
-        } else {
-            log.info("Общие друзья для пользователей с id = {} и id = {} успешно получены. Общие друзья: {}", userId, friendId, commonFriends);
-        }
+        log.debug("(Repo) Запрос завершен. Найдено общих друзей: {}.", commonFriends.size());
 
         return commonFriends;
     }
 
     @Override
     public void deleteUserById(long userId) {
-        final String sql = """
-                DELETE
-                FROM users
-                WHERE user_id = ?
-                """;
-        jdbcTemplate.update(sql, userId);
+        log.debug("(Repo) Начало удаления пользователя с id = {}.", userId);
+        jdbcTemplate.update("""
+                DELETE FROM users WHERE user_id = ?
+                """, userId);
+        log.debug("(Repo) Пользователь с id = {} успешно удален.", userId);
     }
 }
+

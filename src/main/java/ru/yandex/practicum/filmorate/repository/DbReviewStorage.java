@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -56,20 +56,22 @@ public class DbReviewStorage implements ReviewStorage {
     public Optional<Review> getReviewById(long reviewId) {
         final String GET_REVIEW_BY_ID_QUERY = """
                 SELECT *
-                FROM (SELECT * FROM reviews WHERE id = ?) AS reviews
-                LEFT JOIN (SELECT review_id, (2 * SUM(liked)) - COUNT(user_id) AS useful FROM reviews_likes
-                GROUP BY review_id) AS review_use
+                FROM (SELECT * FROM reviews
+                      WHERE id = ?) AS reviews
+                LEFT JOIN (SELECT review_id, 2 * SUM(liked) - COUNT(user_id) AS useful
+                           FROM reviews_likes
+                           GROUP BY review_id) AS review_use
                 ON reviews.id = review_use.review_id;
                 """;
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(GET_REVIEW_BY_ID_QUERY, reviewRowMapper, reviewId));
-        } catch (IncorrectResultSizeDataAccessException e) {
+        } catch (EmptyResultDataAccessException e) {
             return Optional.empty();
         }
     }
 
     @Override
-    public List<Review> getAllReviews(int amount) {
+    public List<Review> getAllReviews(int limit) {
         final String GET_ALL_REVIEWS = """
                 SELECT *
                 FROM reviews
@@ -78,7 +80,7 @@ public class DbReviewStorage implements ReviewStorage {
                 ON review_use.review_id = reviews.id
                 LIMIT ?;
                 """;
-        return jdbcTemplate.query(GET_ALL_REVIEWS, reviewRowMapper, amount);
+        return jdbcTemplate.query(GET_ALL_REVIEWS, reviewRowMapper, limit);
     }
 
     @Override

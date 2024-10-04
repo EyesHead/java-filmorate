@@ -21,23 +21,23 @@ public class FilmValidator {
 
     public void checkFilmMpaRatingOnExist(Mpa mpa) throws InvalidDataRequestException {
         if (mpa == null) {
-            log.debug("У проверяемого фильма нет mpa рейтинга. Проверка закончена");
+            log.debug("(Validator) У проверяемого фильма нет mpa рейтинга. Валидация закончена");
             return;
         }
-        log.debug("Начало проверки MPA рейтинга на существование '{}' в БД.", mpa.getId());
+        log.debug("(Validator) Начало проверки MPA рейтинга на существование '{}' в БД.", mpa.getId());
 
         filmRepo.getMpa(mpa.getId()).orElseThrow(
-                () -> new InvalidDataRequestException("MPA не найден. Mpa ID = " + mpa.getId())
+                () -> new InvalidDataRequestException("MPA рейтинг не найден. Mpa ID = " + mpa.getId())
         );
 
-        log.debug("MPA рейтинг с ID='{}' существует. Проверка завершена.", mpa.getId());
+        log.debug("(Validator) MPA рейтинг с ID='{}' существует. Валидация завершена", mpa.getId());
     }
 
     public void checkFilmGenresOnExist(Set<Genre> filmGenres) throws InvalidDataRequestException {
-        log.debug("Начало проверки жанров на существование в БД. {}", filmGenres);
+        log.debug("(Validator) Начало проверки жанров на существование в БД. {}", filmGenres);
 
         if (!CollectionUtils.isNotEmpty(filmGenres)) {
-            log.debug("Фильм не имеет жанров. Проверка закончена");
+            log.debug("(Validator) Фильм не имеет жанров. Валидация завершена");
             return;
         }
 
@@ -54,11 +54,12 @@ public class FilmValidator {
     }
 
     public void checkFilmOnExist(long filmId) throws NotFoundException {
-        log.debug("Проверка фильма на существование в БД. FILM ID = {}", filmId);
+        log.debug("(Validator) Валидация фильма на существование в БД. FILM ID = {}", filmId);
 
         if (filmRepo.getFilmById(filmId).isEmpty()) {
             throw new NotFoundException("Фильм не найден. ID = " + filmId);
         }
-        log.debug("Фильм существует. Проверка завершена.");
+
+        log.debug("(Validator) Фильм существует. Валидация завершена");
     }
 }

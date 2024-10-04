@@ -1,25 +1,26 @@
 package ru.yandex.practicum.filmorate.repository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
+@Slf4j
 public class DbLikeStorage implements LikeStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public Map<Long, ArrayList<Long>> getMapOfLikesByPrimaryKey(List<Long> listOfIds, String primaryKey) {
-        if (CollectionUtils.isEmpty(listOfIds)) return new HashMap<>();
+        if (CollectionUtils.isEmpty(listOfIds)) {
+            log.debug("(Repo) Получен пустой список идентификаторов. Возвращается пустая карта лайков.");
+            return new HashMap<>();
+        }
+
         String secondaryKey = primaryKey.equals("user_id") ? "film_id" : "user_id";
         String inSql = String.join(",", Collections.nCopies(listOfIds.size(), "?"));
         final String GET_LIKED_FILMS_ID_BY_USER_ID = String.format("""
@@ -28,17 +29,31 @@ public class DbLikeStorage implements LikeStorage {
                 WHERE %s IN (%s)
                 ORDER BY %s;
                 """, primaryKey, inSql, primaryKey);
-        return jdbcTemplate.query(GET_LIKED_FILMS_ID_BY_USER_ID, rs -> {
-            Map<Long, ArrayList<Long>> result = new HashMap<>();
+
+        log.debug("(Repo) Выполнение запроса для получения лайков. Первичный ключ: '{}', вторичный ключ: '{}'.",
+                primaryKey, secondaryKey);
+
+        Map<Long, ArrayList<Long>> result = jdbcTemplate.query(GET_LIKED_FILMS_ID_BY_USER_ID, rs -> {
+            Map<Long, ArrayList<Long>> tempResult = new HashMap<>();
             while (rs.next()) {
-                if (!result.containsKey(rs.getLong(primaryKey))) {
-                    result.put(rs.getLong(primaryKey), new ArrayList<>(Arrays.asList(rs.getLong(secondaryKey))));
+                long key = rs.getLong(primaryKey);
+                long value = rs.getLong(secondaryKey);
+
+                if (!tempResult.containsKey(key)) {
+                    tempResult.put(key, new ArrayList<>(List.of(value)));
                 } else {
-                    result.get(rs.getLong(primaryKey)).add(rs.getLong(secondaryKey));
+                    tempResult.get(key).add(value);
                 }
             }
-            return result;
+            return tempResult;
         }, listOfIds.toArray());
 
+        log.debug("(Repo) Запрос выполнен. Размер возвращаемой карты: '{}'. Ключи ({}): {}, Значения ({}): {}",
+                result.size(),
+                primaryKey, result.keySet(),
+                secondaryKey, result.values());
+
+        return result;
     }
 }
+

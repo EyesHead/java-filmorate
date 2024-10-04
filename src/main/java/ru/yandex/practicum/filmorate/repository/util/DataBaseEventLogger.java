@@ -18,6 +18,8 @@ public class DataBaseEventLogger implements EventLogger {
     private final JdbcTemplate jdbcTemplate;
 
     public void logEvent(long userId, EventType type, EventOperation operation, long entityId) {
+        log.debug("Начало регистрации новой операция '{}' над '{}' от пользователя с id = '{}'. Id субъекта = '{}'",
+                operation, type, userId, entityId);
         final int typeId = type.ordinal();
         final int operationId = operation.ordinal();
         final long eventTimestamp = System.currentTimeMillis();
@@ -27,7 +29,6 @@ public class DataBaseEventLogger implements EventLogger {
                 VALUES (?, ?, ?, ?, ?)
                 """;
         jdbcTemplate.update(LOG_EVENT_QUERY, userId, typeId, operationId, entityId, eventTimestamp);
-        log.debug("Зарегестрировано новая операция '{}' над '{}' от пользователя с id = '{}'. Id субъекта = '{}'",
-                operation, type, userId, entityId);
+        log.debug("Операция успешно зарегестрирована");
     }
 }

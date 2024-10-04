@@ -20,12 +20,14 @@ public class FilmMpaService {
 
     public Collection<Mpa> getAllMpaRatings() {
         log.info("(NEW) Получен новый запрос получение всех рейтингов MPA сервиса");
-        return filmRepository.getAllMpa();
+        Collection<Mpa> MPAs = filmRepository.getAllMpa();
+        log.info("(END) Всего было найдено '{}' рейтингов MPA в сервисе", MPAs.size());
+        return MPAs;
     }
 
     public Mpa getMpaById(long mpaId) {
         log.info("(NEW) Получен новый запрос получение MPA рейтинга с MPA ID = {}", mpaId);
         return filmRepository.getMpa(mpaId).orElseThrow(
-                () -> new NotFoundException("Mpa rating not found. Id = " + mpaId));
+                () -> new NotFoundException("(END) Рейтинг MPA не найден. Id = " + mpaId));
     }
 }
