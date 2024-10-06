@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -37,5 +39,20 @@ public class UserCrudController {
                            @Validated(Marker.OnUpdate.class)
                            User user) {
         return userService.updateUser(user);
+    }
+
+    @GetMapping("{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public User getUserById(@NotNull
+                            @Positive
+                            @PathVariable
+                            long userId) {
+        return userService.getUserById(userId);
+    }
+
+    @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUserById(@PathVariable long userId) {
+        userService.deleteUserById(userId);
     }
 }

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service.util;
+package ru.yandex.practicum.filmorate.service.validators;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,11 +13,12 @@ public class UserValidator {
     private UserStorage userStorage;
 
     public void checkUserOnExist(long userId) throws NotFoundException {
-        log.debug("Проверка существования пользователя '{}' в БД.", userId);
+        log.debug("(Validator) Начало проверки существования пользователя '{}' в БД.", userId);
 
         userStorage.getUserById(userId).orElseThrow(
-                () -> new NotFoundException("Пользователь не найден. ID = " + userId));
+                () -> new NotFoundException("Пользователь не найден. ID = " + userId)
+        );
 
-        log.debug("Пользователь '{}' найден. Проверка выполнена", userId);
+        log.debug("(Validator) Пользователь '{}' найден. Проверка выполнена.", userId);
     }
 }
