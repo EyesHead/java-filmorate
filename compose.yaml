@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:17
+    container_name: filmorate-postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=filmsdb
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=12345
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: filmorate-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
