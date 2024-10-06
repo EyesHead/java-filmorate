@@ -1,14 +1,15 @@
-DROP TABLE IF EXISTS mpa, users, films, genres, directors,films_genres, users_films_like, friendship,
-    reviews, reviews_likes, films_directors, friendship, events;
+DROP TABLE IF EXISTS mpa, users, films, genres, directors, films_genres, users_films_like, friendship,
+    reviews, reviews_likes, films_directors, events;
 
 -- Таблица mpa
 CREATE TABLE IF NOT EXISTS mpa (
-    mpa_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    mpa_id BIGSERIAL PRIMARY KEY,
     mpa_name VARCHAR(10) NOT NULL UNIQUE
 );
 
+-- Таблица users
 CREATE TABLE IF NOT EXISTS users (
-    user_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGSERIAL PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
     login VARCHAR(100) NOT NULL UNIQUE,
     username VARCHAR(150),
@@ -17,7 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Таблица films
 CREATE TABLE IF NOT EXISTS films (
-    film_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    film_id BIGSERIAL PRIMARY KEY,
     film_name VARCHAR(150) NOT NULL,
     description VARCHAR(200),
     release_date DATE,
@@ -27,7 +28,7 @@ CREATE TABLE IF NOT EXISTS films (
 
 -- Таблица всех жанров. Названия жанров уникальны
 CREATE TABLE IF NOT EXISTS genres (
-    genre_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    genre_id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
@@ -54,35 +55,38 @@ CREATE TABLE IF NOT EXISTS friendship (
     PRIMARY KEY (user_id, friend_id)
 );
 
+-- Таблица режиссеров
 CREATE TABLE IF NOT EXISTS directors (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL
 );
 
+-- Таблица связи many-to-many между фильмами и режиссерами
 CREATE TABLE IF NOT EXISTS films_directors (
     film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
     director_id BIGINT NOT NULL REFERENCES directors (id) ON DELETE CASCADE,
     PRIMARY KEY (film_id, director_id)
 );
 
+-- Таблица отзывов
 CREATE TABLE IF NOT EXISTS reviews (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     film_id BIGINT NOT NULL REFERENCES films (film_id) ON DELETE CASCADE,
-    is_positive BOOL,
+    is_positive BOOLEAN,
     content VARCHAR(200)
 );
 
+-- Таблица лайков для отзывов
 CREATE TABLE IF NOT EXISTS reviews_likes (
     review_id BIGINT NOT NULL REFERENCES reviews (id) ON DELETE CASCADE,
     user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
-    liked BIT,
+    liked BOOLEAN,
     PRIMARY KEY (review_id, user_id)
 );
 
--- При удалении пользователя стираются все связанные с ним события
+-- Таблица событий
 CREATE TABLE IF NOT EXISTS events (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL REFERENCES users (user_id) ON DELETE CASCADE,
     type_id INTEGER NOT NULL,
     operation_id INTEGER NOT NULL,
