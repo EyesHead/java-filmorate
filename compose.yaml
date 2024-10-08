@@ -1,0 +1,20 @@
+services:
+  filmorate-app:
+    build: .
+    ports:
+      - "8080:8080"  # Проброс порта для доступа к приложению
+    volumes:
+      - ./db:/app/db  # Монтируем локальную директорию для базы данных H2
+      - ./logs:/app/logs  # Монтируем директорию для логов на хосте
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/app/db/filmorate
+      - SPRING_DATASOURCE_DRIVERCLASSNAME=org.h2.Driver
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_SQL_INIT_MODE=always
+      - LOGGING_FILE_PATH=/app/logs/filmorate-app.log  # Путь для логов приложения
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"  # Максимальный размер лог-файла

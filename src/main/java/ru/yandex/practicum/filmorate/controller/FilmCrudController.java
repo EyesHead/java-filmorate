@@ -7,8 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.entity.Film;
-import ru.yandex.practicum.filmorate.service.FilmCrudService;
 import ru.yandex.practicum.filmorate.entity.Marker;
+import ru.yandex.practicum.filmorate.service.FilmCrudService;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,7 +26,7 @@ public class FilmCrudController {
         return filmService.getAll();
     }
 
-    @GetMapping("{filmId}")
+    @GetMapping("/{filmId}")
     @ResponseStatus(HttpStatus.OK)
     public Film getFilmById(@NotNull
                             @Positive
@@ -65,7 +65,7 @@ public class FilmCrudController {
         return filmService.getSortedFilmsByDirector(directorId, sortBy);
     }
 
-    @DeleteMapping("{filmId}")
+    @DeleteMapping("/{filmId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteFilmById(@PathVariable long filmId) {
         filmService.deleteFilmById(filmId);
