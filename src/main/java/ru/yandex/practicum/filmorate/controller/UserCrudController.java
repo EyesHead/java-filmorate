@@ -41,7 +41,7 @@ public class UserCrudController {
         return userService.updateUser(user);
     }
 
-    @GetMapping("{userId}")
+    @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public User getUserById(@NotNull
                             @Positive

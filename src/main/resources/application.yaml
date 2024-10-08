@@ -1,13 +1,20 @@
 spring:
   datasource:
-    url: jdbc:postgresql://filmorate-postgres:5432/filmsdb
-    username: dbuser
-    password: 12345
-    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    driverClassName: ${SPRING_DATASOURCE_DRIVERCLASSNAME}
+    username: sa
+    password: password
+
   sql:
     init:
       mode: always
+  h2:
+    console:
+      enabled: true
+
 
 logging:
   level:
     ru.yandex.practicum.filmorate: TRACE
+  file:
+    name: ${LOGGING_FILE_PATH}  # Путь к файлу для логов
